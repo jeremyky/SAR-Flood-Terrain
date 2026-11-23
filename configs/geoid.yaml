@@ -1,0 +1,34 @@
+# Train on the GEOID-Flood train split (159 CEMS events), validate on its val split.
+# Test with scripts/eval_external.py on geoid_test, geoid_heldout and Sen1Floods11.
+name: geoid/sar_only
+seed: 0
+output_root: ${FLOODSEG_ROOT}/runs
+
+data:
+  root: ${FLOODSEG_ROOT}/data/geoid_trainval
+  channels: [vv, vh]
+
+split:
+  mode: lists            # <root>/splits/{train,valid}.txt
+
+model:
+  base: 32
+  depth: 4
+  dropout: 0.1
+
+train:
+  epochs: 30
+  batch_size: 8
+  crop: 512              # tiles are 1024x1024
+  lr: 1.0e-3
+  weight_decay: 1.0e-4
+  num_workers: 8
+
+loss:
+  pos_weight: 1.0
+  hand_monotonicity: {weight: 0.0, margin: 0.05, min_delta: 1.0, stride: 1}
+  hand_ceiling: {weight: 0.0, threshold: 15.0}
+
+eval:
+  threshold: 0.5
+  hand_mask: 15.0

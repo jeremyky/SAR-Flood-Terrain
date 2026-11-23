@@ -1,0 +1,251 @@
+% Supplementary material for the JSTARS manuscript. Build: tectonic -X compile supplement.tex
+\documentclass[journal,onecolumn]{IEEEtran}
+\usepackage{iftex}
+\ifPDFTeX\usepackage[utf8]{inputenc}\fi
+\usepackage[T1]{fontenc}
+\usepackage{amsmath,amssymb,textcomp,graphicx,booktabs,array}
+\usepackage[hidelinks]{hyperref}
+\usepackage{newunicodechar}
+\newunicodechar{−}{\ensuremath{-}}
+\newunicodechar{Δ}{\ensuremath{\Delta}}
+\newunicodechar{ρ}{\ensuremath{\rho}}
+\newunicodechar{→}{\ensuremath{\rightarrow}}
+\newunicodechar{±}{\ensuremath{\pm}}
+\newunicodechar{≥}{\ensuremath{\geq}}
+\newunicodechar{≤}{\ensuremath{\leq}}
+\newunicodechar{–}{--}
+\newunicodechar{—}{---}
+\graphicspath{{../../figures/}}
+\newcommand{\iouf}{IoU$_\text{flood}$}
+\newcommand{\ci}[2]{[#1,\,#2]}
+\renewcommand{\thetable}{S\arabic{table}}
+\renewcommand{\thefigure}{S\arabic{figure}}
+
+\begin{document}
+\title{Supplementary Material for ``Terrain Helps SAR Flood Mapping on New Floods, and Same-Event Splits Hide It''}
+\author{Jeremy~Ky, Bao~Duong, and~Rich~Nguyen}
+\maketitle
+\sloppy
+
+All CIs are 95\%. Unless stated otherwise, multi-seed CIs are two-way bootstraps over seeds or training
+draws and test events. ``Unseen activations'' are GEOID-Flood test events whose activation does not
+appear in GEOID-Flood train. Every number is produced by the scripts listed in the repository's
+\texttt{REPRODUCE.md}.
+
+\section*{Leave-one-event-out on Sen1Floods11}
+
+\begin{table}[h]
+\caption{Leave-one-event-out on Sen1Floods11 (11 events, 3 seeds; 5 where noted). Mean held-out event
+IoU and paired difference to the SAR-only model, with 95\% CI over events; $p$: Wilcoxon signed-rank over
+events. The 5-seed SAR-only mean is 0.566; the ResNet-34 SAR-only mean is 0.584.}
+\centering
+\resizebox{\linewidth}{!}{%
+\begin{tabular}{@{}lcccc@{}}
+\toprule
+Variant & IoU & Δ vs SAR only & $p$ & Improved \\
+\midrule
+SAR only (VV, VH) & 0.571 & & & \\
++ HAND input & 0.589 & +0.018 [−0.000, +0.035] & 0.12 & 8/11 \\
++ HAND input, 5 seeds & 0.591 & +0.025 [+0.005, +0.045] & 0.083 & 8/11 \\
++ HAND, DEM, slope inputs & 0.584 & +0.012 [−0.012, +0.033] & 0.21 & 8/11 \\
++ monotonicity loss & 0.569 & −0.002 [−0.010, +0.005] & 0.64 & 4/11 \\
++ ceiling loss & 0.571 & −0.001 [−0.010, +0.007] & 0.97 & 6/11 \\
++ HAND input + monotonicity & 0.588 & +0.017 [+0.000, +0.033] & 0.12 & 7/11 \\
++ monotonicity, 30-m stride, $w{=}1$ & 0.570 & −0.002 [−0.007, +0.004] & 0.47 & 4/11 \\
++ monotonicity, 30-m stride, $w{=}10$ & 0.571 & −0.001 [−0.006, +0.004] & 0.77 & 5/11 \\
++ HAND + mono.\ 30 m, $w{=}1$ (vs + HAND) & 0.596 & +0.006 [−0.002, +0.016] & 0.28 & 6/11 \\
++ HAND + mono.\ 30 m, $w{=}10$ (vs + HAND) & 0.595 & +0.006 [−0.004, +0.015] & 0.054 & 9/11 \\
+ResNet-34: + HAND input & 0.600 & +0.017 [−0.001, +0.033] & 0.12 & 8/11 \\
+\bottomrule
+\end{tabular}}
+\end{table}
+
+With 11 events, which events gain is not reproducible across backbones (Spearman $\rho = 0.07$ between
+the U-Net and ResNet-34 per-event gains).
+
+\section*{Terrain and permanent-water ablation with GEOID-Flood training}
+
+\begin{table}[h]
+\caption{Terrain and permanent-water ablation with GEOID-Flood training (unseen activations; 20 events: 5
+draws, 159 events: 3 seeds). Paired Δ with two-way 95\% CIs.}
+\centering
+\resizebox{\linewidth}{!}{%
+\begin{tabular}{@{}lcccc@{}}
+\toprule
+Comparison & Training events & Flood, event-mean Δ & Flood, pooled Δ & All water, event-mean Δ \\
+\midrule
+DEM + slope vs SAR & 20 & +0.021 [+0.002, +0.044] & +0.046 [+0.016, +0.078] & +0.064 [+0.024, +0.110] \\
+HAND vs SAR & 20 & +0.032 [+0.004, +0.065] & +0.062 [+0.019, +0.111] & +0.072 [+0.026, +0.124] \\
+HAND + DEM + slope vs SAR & 20 & +0.027 [+0.000, +0.058] & +0.060 [+0.019, +0.099] & +0.076 [+0.030, +0.129] \\
+HAND vs DEM + slope & 20 & +0.011 [−0.005, +0.032] & +0.015 [−0.021, +0.049] & +0.009 [−0.011, +0.029] \\
+DEM + slope vs SAR & 159 & −0.010 [−0.027, +0.007] & −0.003 [−0.035, +0.026] & +0.017 [−0.005, +0.038] \\
+HAND vs SAR & 159 & −0.001 [−0.019, +0.016] & +0.011 [−0.017, +0.037] & +0.023 [+0.004, +0.045] \\
+HAND + DEM + slope vs SAR & 159 & +0.003 [−0.015, +0.020] & +0.014 [−0.014, +0.037] & +0.031 [+0.011, +0.054] \\
+HAND vs DEM + slope & 159 & +0.009 [−0.013, +0.034] & +0.014 [−0.017, +0.051] & +0.007 [−0.008, +0.027] \\
+\midrule
+JRC vs SAR & 20 & −0.007 [−0.045, +0.024] & +0.001 [−0.059, +0.040] & +0.072 [+0.005, +0.154] \\
+HAND vs JRC & 20 & +0.039 [+0.010, +0.072] & +0.061 [+0.015, +0.113] & +0.000 [−0.044, +0.041] \\
+HAND + JRC vs HAND & 20 & −0.013 [−0.033, +0.003] & −0.013 [−0.043, +0.014] & +0.024 [−0.005, +0.062] \\
+JRC vs SAR & 159 & −0.054 [−0.089, −0.024] & −0.078 [−0.132, −0.033] & −0.003 [−0.034, +0.028] \\
+HAND vs JRC & 159 & +0.052 [+0.020, +0.089] & +0.088 [+0.043, +0.140] & +0.027 [−0.005, +0.060] \\
+HAND + JRC vs HAND & 159 & −0.012 [−0.031, +0.001] & −0.013 [−0.029, +0.000] & +0.006 [−0.012, +0.025] \\
+\bottomrule
+\end{tabular}}
+\end{table}
+
+HAND's edge over DEM and slope with GEOID-Flood training is not significant under the two-way bootstrap;
+with test events alone resampled, the 20-event flood CI, \ci{+0.001}{+0.022}, just excludes zero. Adding
+DEM and slope to HAND adds nothing (flood −0.005 \ci{−0.015}{+0.005} at 20 events). In the Sen1Floods11
+transfer, adding the JRC layer to HAND changes little (CIs over test events: +0.007 \ci{+0.002}{+0.014} all water; −0.002
+\ci{−0.005}{+0.002} flood).
+
+\section*{TerraMind with GEOID-Flood training}
+
+\begin{table}[h]
+\caption{TerraMind (TM) and U-Net, ± HAND, with GEOID-Flood training (unseen activations, event-mean IoU,
+two-way 95\% CIs; number of improved events where given).}
+\centering
+\resizebox{\linewidth}{!}{%
+\begin{tabular}{@{}llcc@{}}
+\toprule
+Comparison & Labels & 20 events (5 draws) & 159 events (3 seeds) \\
+\midrule
+TM + HAND − TM & flood & +0.031 [+0.001, +0.072], 34/38 & +0.002 [−0.015, +0.027] \\
+TM + HAND − TM & all water & +0.049 [+0.006, +0.106], 36/39 & +0.005 [−0.017, +0.032] \\
+U-Net + HAND − U-Net & flood & +0.032 [+0.004, +0.065] & −0.001 [−0.019, +0.016] \\
+TM − U-Net (SAR only) & flood & +0.016 [−0.007, +0.042] & +0.005 [−0.010, +0.019] \\
+TM − U-Net (SAR only) & all water & +0.052 [+0.008, +0.109] & +0.019 [+0.002, +0.038] \\
+U-Net + HAND − TM & flood & +0.016 [−0.007, +0.045] & −0.006 [−0.029, +0.020] \\
+U-Net + HAND − TM & all water & +0.020 [−0.012, +0.059] & +0.005 [−0.022, +0.032] \\
+\bottomrule
+\end{tabular}}
+\end{table}
+
+At 159 events TerraMind loses the all-water HAND gain the U-Net keeps (+0.005 vs.\ +0.023). Under the
+GEOID-Flood protocol (pooled \iouf{}, unseen activations): at 20 events TerraMind goes from 0.443 to 0.480
+with HAND (+0.040 \ci{+0.011}{+0.070}; held-out 2026 events +0.037 \ci{+0.003}{+0.080}); TerraMind alone
+vs.\ U-Net alone +0.060 \ci{+0.005}{+0.112}, and the U-Net with HAND (0.448) equals TerraMind alone. At 159
+events: 0.517 → 0.519, +0.001 \ci{−0.024}{+0.029} (held-out +0.013 \ci{−0.008}{+0.029}); TerraMind alone
+beats the U-Net, +0.042 \ci{+0.011}{+0.071}.
+
+\section*{Learning curve, equal-tiles control and the confirmation test}
+
+\begin{table}[h]
+\caption{HAND gain against the number of training events with every subset cut to 500 tiles (flooded water
+only, 38 unseen test activations, 3 exploratory draws). Two-way 95\% CIs.}
+\centering
+\resizebox{\linewidth}{!}{%
+\begin{tabular}{@{}lcccc@{}}
+\toprule
+Training events & Event-mean IoU, SAR → + HAND & Δ (95\% CI) & Pooled IoU, SAR → + HAND & Δ (95\% CI) \\
+\midrule
+10 & 0.380 → 0.366 & −0.014 [−0.043, +0.007] & 0.530 → 0.527 & −0.003 [−0.057, +0.040] \\
+20 & 0.364 → 0.376 & +0.012 [+0.001, +0.025] & 0.511 → 0.549 & +0.038 [+0.009, +0.072] \\
+40 & 0.359 → 0.370 & +0.011 [−0.013, +0.037] & 0.495 → 0.531 & +0.037 [−0.011, +0.094] \\
+80 & 0.367 → 0.377 & +0.010 [−0.007, +0.026] & 0.514 → 0.546 & +0.031 [−0.001, +0.068] \\
+159 & 0.381 → 0.381 & +0.000 [−0.012, +0.012] & 0.536 → 0.555 & +0.019 [−0.009, +0.052] \\
+\bottomrule
+\end{tabular}}
+\end{table}
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=0.75\textwidth]{fig_tile_control.pdf}
+\caption{As the main learning-curve figure, with every training subset cut to 500 tiles spread evenly over
+its events (3 exploratory draws).}
+\end{figure}
+
+\begin{table}[h]
+\caption{Event-mean IoU regressed on $\log_2$ events and $\log_2$ tiles over all 38 exploratory training
+draws (unseen activations; two-way 95\% CIs).}
+\centering
+\resizebox{\linewidth}{!}{%
+\begin{tabular}{@{}llcc@{}}
+\toprule
+Outcome & Labels & Per doubling of events & Per doubling of tiles \\
+\midrule
+SAR-only IoU & flood & +0.007 [+0.001, +0.015] & −0.001 [−0.006, +0.004] \\
+SAR-only IoU & all water & +0.014 [+0.004, +0.028] & −0.004 [−0.014, +0.003] \\
+SAR + HAND IoU & flood & +0.004 [−0.001, +0.009] & +0.000 [−0.003, +0.004] \\
+SAR + HAND IoU & all water & +0.009 [+0.003, +0.016] & −0.002 [−0.007, +0.001] \\
+HAND gain & flood & −0.003 [−0.010, +0.003] & +0.001 [−0.003, +0.007] \\
+HAND gain & all water & −0.005 [−0.016, +0.003] & +0.002 [−0.005, +0.009] \\
+\bottomrule
+\end{tabular}}
+\end{table}
+
+\emph{Learning curve, all water} (unseen activations, 39 events; event-mean Δ, then pooled Δ): 10 events
++0.050 \ci{+0.021}{+0.092}, +0.074 \ci{+0.028}{+0.148}; 20: +0.072 \ci{+0.026}{+0.124}, +0.101
+\ci{+0.029}{+0.189}; 40: +0.044 \ci{+0.015}{+0.076}, +0.064 \ci{+0.019}{+0.132}; 80: +0.026
+\ci{+0.008}{+0.047}, +0.048 \ci{+0.007}{+0.106}; 159: +0.023 \ci{+0.004}{+0.045}, +0.050
+\ci{+0.003}{+0.118}. A linear fit of the gain on log events is not significant, because the gain rises
+from 10 to 20 events and then falls. Threshold-free, event-mean flood AP gains on the exploratory draws are
++0.028 \ci{+0.016}{+0.041} at 20 events, +0.023 \ci{+0.009}{+0.039} at 40 and −0.000 \ci{−0.014}{+0.012} at
+159 (CIs over test events only).
+
+\emph{Confirmation test.} The contrast CIs resample test events, with the contrast averaged over draws.
+All water: gains +0.035, +0.019 and +0.020 at 20, 40 and 159 events, contrast +0.007 \ci{−0.005}{+0.019},
+$p = 0.37$. Secondary analysis on all test events, including those sharing activations with training:
+flood +0.006 \ci{−0.000}{+0.013}, $p = 0.043$; all water +0.010 \ci{+0.001}{+0.019}, $p = 0.091$. Post hoc
+AP version on the confirmation draws: flood gains +0.017, +0.000 and +0.004, contrast +0.004
+\ci{−0.006}{+0.018}, $p = 0.49$; all water $p = 0.75$. Per-draw gains of the 40- and 159-event
+confirmation draws were seen before the analysis ran, but the test was fixed and committed beforehand.
+
+\emph{159 events, more detail.} All-water event-mean AP on unseen activations rises by (CI over test events) +0.011
+\ci{+0.001}{+0.022}; flood AP pooled 0.730 → 0.732. Change detection with the pre-event image: on the
+held-out 2026 events HAND gives +0.021 \ci{−0.004}{+0.053} at 159 events (single image −0.017), and +0.006
+(change detection) vs.\ +0.016 (single image) at 20 events, all CIs including zero.
+
+\section*{Relief gate}
+
+\begin{table}[h]
+\caption{Relief gate: gated minus ungated HAND model, \iouf{} under the GEOID-Flood protocol, unseen
+activations, two-way 95\% CIs.}
+\centering
+\resizebox{\linewidth}{!}{%
+\begin{tabular}{@{}lcc@{}}
+\toprule
+Training events & Pooled & Event-mean \\
+\midrule
+20 (5 draws) & −0.016 [−0.047, +0.001] & −0.002 [−0.005, +0.000] \\
+159 (3 seeds) & −0.003 [−0.007, +0.001] & −0.002 [−0.006, +0.000] \\
+\bottomrule
+\end{tabular}}
+\end{table}
+
+131 of 2,635 test tiles are flat (36 on unseen activations). On the held-out 2026 events the gate changes
+\iouf{} by −0.001 (20 events) and +0.003 (159), CIs including zero. The change-detection and TerraMind
+pairs behave the same (all CIs include zero; $|\Delta| \le 0.008$ except change detection at 20 events,
+pooled −0.013 \ci{−0.055}{+0.012}). Exploratory thresholds, unseen pooled at 20 events: 1\,m −0.015, 2\,m
+−0.016, 5\,m −0.022 \ci{−0.053}{−0.002}. The gate recovers part of the EMSR419 loss when the post-event map
+alone is scored (159 events, shared activations, flood labels: pooled Δ vs.\ SAR only −0.030 → −0.012), but
+that event motivated the rule, and under the protocol the gate lowers pooled IoU on the same events (−0.009
+\ci{−0.023}{−0.000}).
+
+\section*{HAND dropout}
+
+\begin{table}[h]
+\caption{HAND dropout ($p = 0.5$) minus no dropout, unseen activations, two-way 95\% CIs. Tail: events
+where the HAND model is worse than SAR only by more than 0.02 IoU (draw-averaged), without → with
+dropout. Sen1Floods11-trained models are scored on all 77/79 GEOID-Flood test events.}
+\centering
+\resizebox{\linewidth}{!}{%
+\begin{tabular}{@{}lcccc@{}}
+\toprule
+Training & Event-mean Δ, flood & Event-mean Δ, all water & Protocol pooled \iouf{} Δ & Tail (flood / protocol) \\
+\midrule
+Sen1Floods11, 11 events (3 seeds) & −0.008 [−0.016, −0.001] & −0.020 [−0.036, −0.009] & −0.027 [−0.060, −0.002] & 7 → 6 / 4 → 6 \\
+GEOID, 20 events (5 draws) & +0.001 [−0.017, +0.019] & −0.017 [−0.042, +0.005] & −0.009 [−0.049, +0.024] & 2 → 4 / 1 → 2 \\
+GEOID, 159 events (3 seeds) & +0.001 [−0.015, +0.017] & −0.013 [−0.033, +0.006] & −0.013 [−0.036, +0.012] & 8 → 4 / 5 → 2 \\
+\bottomrule
+\end{tabular}}
+\end{table}
+
+With 11 training events dropout removes 0.008 of HAND's 0.032 flood event-mean gain, 0.020 of 0.061 for all
+water and 0.027 of 0.072 under the protocol. With few events the tail does not shrink (11 events) or grows
+(20). At 159 events the summed loss over tail events falls from −0.32 to −0.06, and the event-mean protocol
+gain over SAR only from +0.013 to +0.004. The Swedish tile (EMSR280\_1-0, Sen1Floods11-trained): SAR only
+0.61, HAND 0.30, HAND with dropout 0.46 (3 seeds); the Swedish event, all water: 0.663 → 0.592
+(Sen1Floods11), 0.622 → 0.527 (20 events), 0.688 → 0.552 (159 events).
+
+\end{document}

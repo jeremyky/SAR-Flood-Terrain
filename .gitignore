@@ -1,0 +1,17 @@
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.venv/
+runs/
+data/
+*.pt
+
+# generated submission bundles (scripts/make_arxiv.sh)
+paper/arxiv/
+paper/arxiv.tar.gz
+paper/jstars/*.pdf
+paper/jstars/*.aux
+paper/jstars/*.bbl
+paper/jstars/*.blg
+paper/jstars/*.log

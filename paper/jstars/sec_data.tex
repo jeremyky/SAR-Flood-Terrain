@@ -1,0 +1,48 @@
+\section{Data}
+\label{sec:data}
+
+\begin{table}[t]
+\caption{Datasets}
+\label{tab:data}
+\centering
+\footnotesize
+\begin{tabular}{@{}p{0.17\columnwidth}p{0.33\columnwidth}p{0.40\columnwidth}@{}}
+\toprule
+ & Sen1Floods11 (hand-labelled) & GEOID-Flood \\
+\midrule
+Events & 11 & 159 train / 35 val / 82 test (80 used) / 9 held-out (2026) \\
+Tiles & 446 chips, $512^2$ at 10 m & $1024^2$ UTM tiles at 10 m; 8,712 train, 2,635 test \\
+SAR & S1 GRD VV/VH (dB) & post-event S1 GRD (linear $\sigma^0$ to dB); pre-event image per tile \\
+Labels & water / not water & background / permanent water / flooded water \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Table~\ref{tab:data} summarizes the two datasets. For every tile we resample the Copernicus GLO-30
+DEM~\cite{glo30dem} and the ASF GLO-30 HAND product~\cite{asfhand} bilinearly onto the tile's 10-m grid
+and derive slope from the DEM; ESA WorldCover 2021~\cite{zanaga2022worldcover} is used only to describe
+events.
+
+\subsection{Label modes}
+GEOID-Flood separates permanent from flooded water. We score it in two label modes: \emph{all water}
+(permanent plus flooded, the Sen1Floods11 convention, which the Sen1Floods11-trained models were trained
+to predict) and \emph{flooded water only} (permanent water ignored in scoring). We also
+score GEOID-Flood's own protocol, which differences a pre- and a post-event prediction
+(Section~\ref{sec:methods}).
+
+\subsection{Overlap and cleaning}
+CEMS activation EMSR388 is the Sen1Floods11 Spain 2019 flood and is excluded from the GEOID-Flood test
+set. EMSR853's test AoI ships only a pre-event image, so 80 test events remain; 79 contain water and 77
+contain flood. Of the 9,192 training tiles in the catalog, 254 are flagged invalid or are more than 95\%
+nodata (which removes two events entirely, leaving 159 of 161), and 226 of the remaining 8,938 have no
+post-event image or no label in the release, leaving 8,712. Sen1Floods11's Sri Lanka (EMSR205) and
+Nigeria (EMSR314) events are in GEOID-Flood train; when GEOID-trained models are tested on Sen1Floods11,
+we drop those events and Spain.
+
+\subsection{Unseen activations}
+GEOID-Flood splits by AoI, not by activation: 41 of the 80 test activations also have AoIs in the
+training split, and 15 in validation. For GEOID-trained models we therefore report results on the 38
+flood (39 all-water) test events whose activation does not appear in GEOID-Flood train (``unseen
+activations''); results on all test events are given for completeness where they differ. The
+Sen1Floods11-trained models share no event with GEOID-Flood test once EMSR388 is removed, so all 77/79
+events are unseen for them.

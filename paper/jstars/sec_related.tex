@@ -1,0 +1,44 @@
+\section{Related Work}
+
+\subsection{Benchmarks and evaluation splits}
+Sen1Floods11~\cite{bonafilia2020sen1floods11} provides 446 hand-labelled Sentinel-1 chips from 11 flood
+events; its Bolivia event is the customary out-of-distribution test, but most work reports the official
+split, in which test tiles come from the same events as training tiles. GEOID-Flood~\cite{geoidflood}
+assembles CEMS rapid-mapping activations from 2016 to 2026 with a train/validation/test split by area of
+interest (AoI) and a temporally disjoint held-out set of 2026 events. It benchmarks ImageNet and
+geospatial foundation-model encoders (TerraMind, DOFA, OlmoEarth, SSL4EO and Satlas, each frozen and
+fine-tuned) with a U-Net decoder; single-image Sentinel-1 models mostly reach an \iouf{} of 0.41--0.48 (one frozen encoder scores 0.21). It does
+not vary the number of training events or test HAND.
+
+\subsection{Terrain as an input}
+Yadav \emph{et al.}~\cite{yadav2022attentive} fuse a 30-m SRTM DEM and a permanent-water layer with
+Sentinel-1 on Sen1Floods11. Adding the DEM as a third channel slightly lowers IoU for their attentive
+U-Net (0.672 to 0.661), while a two-stream fusion of DEM and permanent water gives their best result
+(0.695); evaluation uses the Sen1Floods11 splits, not held-out events, and HAND is not used. GEOID-Flood
+tests a DEM with a frozen TerraMind backbone on pre-event water-body delineation only and finds its effect
+within noise. MSFlood-Net~\cite{msfloodnet} feeds SAR, optical, DEM and HAND to a ConvNeXt U-Net as
+physically informed inputs on Gaofen data. ALTIS~\cite{altis} is a training-free change-detection
+pipeline that uses HAND as a hard gate in a Bayesian fusion; on a single event (Hurricane Harvey),
+removing HAND costs 0.052 IoU.
+
+\subsection{Terrain on held-out events}
+Two recent projects hold out Sen1Floods11 events. An unreviewed project~\cite{pranav2026loeo} runs
+leave-one-event-out (LOEO) evaluation over all 11 events with a ResNet-34 U-Net and finds no reliable
+terrain gain (macro IoU 0.564 for SAR versus 0.570 with HAND and slope; confidence intervals include
+zero), as we do in Section~\ref{sec:loeo}; it does not test external events or vary the number of
+training events. Chandrasiri and Liyanage~\cite{chandrasiri2026} hold out three events in turn with
+VV/VH-only U-Nets and topology-aware metrics, without terrain.
+
+\subsection{Physics-guided losses and cross-event generalization}
+Gebre \emph{et al.}~\cite{gebre2026physics} combine a U-Net and a Fourier neural operator with
+shallow-water residual losses and DEM-derived features, evaluated against hydrodynamic simulations. Our
+losses are simpler output constraints on HAND, not partial-differential-equation residuals.
+Kolluru \emph{et al.}~\cite{kolluru2026landcover} run Prithvi-EO-2.0~\cite{szwarcman2024prithvi} on 19
+out-of-distribution events and find detection limited jointly by land cover and flood type, with part of
+the error due to disagreement between reference products; they do not test terrain inputs.
+
+\subsection{Gap}
+We found no study that (a) tests a terrain prior on many external flood events, where 11-event LOEO is
+underpowered; (b) compares terrain mechanisms---input, loss, mask---on held-out events with paired
+event-level statistics; or (c) measures how the value of a terrain prior depends on the number of
+training events, separately from the number of tiles.

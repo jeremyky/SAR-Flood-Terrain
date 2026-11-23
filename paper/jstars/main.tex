@@ -1,0 +1,62 @@
+% IEEE JSTARS manuscript. Build: tectonic -X compile main.tex  (or pdflatex + bibtex)
+% Every number traces to a report file; REPRODUCE.md maps sections to the scripts that write them.
+\documentclass[journal]{IEEEtran}
+\usepackage{iftex}
+\ifPDFTeX\usepackage[utf8]{inputenc}\fi
+\usepackage[T1]{fontenc}
+\usepackage{amsmath,amssymb}
+\usepackage{textcomp}
+\usepackage{newunicodechar}  % lets the source use these symbols under both pdfLaTeX and XeTeX
+\newunicodechar{−}{\ensuremath{-}}
+\newunicodechar{Δ}{\ensuremath{\Delta}}
+\newunicodechar{ρ}{\ensuremath{\rho}}
+\newunicodechar{→}{\ensuremath{\rightarrow}}
+\newunicodechar{±}{\ensuremath{\pm}}
+\newunicodechar{≥}{\ensuremath{\geq}}
+\newunicodechar{≤}{\ensuremath{\leq}}
+\newunicodechar{×}{\ensuremath{\times}}
+\newunicodechar{–}{--}
+\newunicodechar{—}{---}
+\newunicodechar{²}{\ensuremath{^2}}
+\newunicodechar{σ}{\ensuremath{\sigma}}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{multirow}
+\usepackage{array}
+\usepackage[hidelinks]{hyperref}
+\usepackage{cite}
+\usepackage{xcolor}
+\graphicspath{{../../figures/}}
+
+\newcommand{\iouf}{IoU$_\text{flood}$}
+\newcommand{\ci}[2]{[#1,\,#2]}
+\newcommand{\todo}[1]{\textcolor{red}{[#1]}}
+
+\begin{document}
+
+\title{Terrain Helps SAR Flood Mapping on New Floods, and Same-Event Splits Hide It}
+
+\author{Jeremy~Ky, Bao~Duong, and~Rich~Nguyen%
+\thanks{Manuscript received \todo{date}.}%
+\thanks{The authors are with the University of Virginia, Charlottesville, VA 22904 USA (e-mail:
+juh7hc@virginia.edu; rjr6zk@virginia.edu; nn4pj@virginia.edu). Corresponding author: Jeremy Ky.}%
+\thanks{Code, run outputs and model checkpoints: \url{https://github.com/jeremyky/SAR-Flood-Terrain}; Zenodo \todo{DOI}.}}
+
+\markboth{IEEE Journal of Selected Topics in Applied Earth Observations and Remote Sensing}%
+{Ky \MakeLowercase{\textit{et al.}}: Terrain helps SAR flood mapping on new floods}
+
+\maketitle
+
+\input{sec_abstract}
+\input{sec_intro}
+\input{sec_related}
+\input{sec_data}
+\input{sec_methods}
+\input{sec_results}
+\input{sec_discussion}
+\input{sec_conclusion}
+
+\bibliographystyle{IEEEtran}
+\bibliography{refs}
+
+\end{document}

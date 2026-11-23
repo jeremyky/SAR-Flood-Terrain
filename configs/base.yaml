@@ -1,0 +1,36 @@
+# SAR-only U-Net on the official Sen1Floods11 hand-labeled split.
+# Variants override only what they change; see configs/experiments.md.
+name: sar_only
+seed: 0
+output_root: ${FLOODSEG_ROOT}/runs
+
+data:
+  root: ${FLOODSEG_ROOT}/data/sen1floods11
+  channels: [vv, vh]
+
+split:
+  mode: official        # official | loeo
+  held_out: null        # event name when mode=loeo
+  val_fraction: 0.15
+
+model:
+  base: 32
+  depth: 4
+  dropout: 0.1
+
+train:
+  epochs: 100
+  batch_size: 16
+  crop: 256
+  lr: 1.0e-3
+  weight_decay: 1.0e-4
+  num_workers: 6
+
+loss:
+  pos_weight: 1.0
+  hand_monotonicity: {weight: 0.0, margin: 0.05, min_delta: 1.0, stride: 1}
+  hand_ceiling: {weight: 0.0, threshold: 15.0}
+
+eval:
+  threshold: 0.5
+  hand_mask: 15.0       # also score predictions with HAND > 15 m zeroed (post-processing baseline)

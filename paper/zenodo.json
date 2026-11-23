@@ -1,0 +1,43 @@
+{
+  "_comment": "Metadata for the manual Zenodo upload of the files built by slurm/archive.sbatch. Add ORCIDs if available; remove this key.",
+  "metadata": {
+    "upload_type": "dataset",
+    "title": "Run outputs, checkpoints and code for: Terrain helps SAR flood mapping on unseen floods when training events are few",
+    "creators": [
+      {
+        "name": "Ky, Jeremy",
+        "affiliation": "University of Virginia"
+      },
+      {
+        "name": "Duong, Bao",
+        "affiliation": "University of Virginia"
+      },
+      {
+        "name": "Nguyen, Rich",
+        "affiliation": "University of Virginia"
+      }
+    ],
+    "description": "<p>Everything needed to check or reuse the results of the paper without retraining: (1) the code at the commit the paper's numbers come from (MIT license); (2) every run directory without weights: the resolved training config including git commit, training history, validation metrics, and per-chip confusion counts for every evaluation (Sen1Floods11 leave-one-event-out, GEOID-Flood test and held-out 2026 events, GEOID-Flood pre/post protocol), plus all report tables the paper quotes (reports/paper_20261121); (3) the checkpoints of every model behind a GEOID-Flood result: U-Net, ResNet-34 U-Net, change-detection U-Net and TerraMind-1.0-base, each with and without HAND, trained on Sen1Floods11 (11 events) or on GEOID-Flood subsets of 10-159 events. SHA-256 sums in SHA256SUMS. Input data are not redistributed; they are public (Sen1Floods11, GEOID-Flood CC BY 4.0, Copernicus GLO-30 DEM, ASF GLO-30 HAND, ESA WorldCover, JRC Global Surface Water) and the repository's REPRODUCE.md rebuilds them.</p>",
+    "access_right": "open",
+    "license": "cc-by-4.0",
+    "keywords": [
+      "flood mapping",
+      "Sentinel-1",
+      "SAR",
+      "HAND",
+      "terrain",
+      "domain generalization",
+      "semantic segmentation",
+      "GEOID-Flood",
+      "Sen1Floods11"
+    ],
+    "related_identifiers": [
+      {
+        "identifier": "https://github.com/jeremyky/SAR-Flood-Terrain",
+        "relation": "isSupplementTo",
+        "resource_type": "software"
+      }
+    ],
+    "notes": "Code is MIT-licensed (LICENSE inside code_*.tar.gz); run outputs and checkpoints are CC BY 4.0. Derived from GEOID-Flood labels (CC BY 4.0)."
+  }
+}
