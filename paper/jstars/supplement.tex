@@ -4,6 +4,7 @@
 \ifPDFTeX\usepackage[utf8]{inputenc}\fi
 \usepackage[T1]{fontenc}
 \usepackage{amsmath,amssymb,textcomp,graphicx,booktabs,array}
+\usepackage{float}
 \usepackage[hidelinks]{hyperref}
 \usepackage{newunicodechar}
 \newunicodechar{−}{\ensuremath{-}}
@@ -34,7 +35,7 @@ appear in GEOID-Flood train. Every number is produced by the scripts listed in t
 
 \section*{Leave-one-event-out on Sen1Floods11}
 
-\begin{table}[h]
+\begin{table}[H]
 \caption{Leave-one-event-out on Sen1Floods11 (11 events, 3 seeds; 5 where noted). Mean held-out event
 IoU and paired difference to the SAR-only model, with 95\% CI over events; $p$: Wilcoxon signed-rank over
 events. The 5-seed SAR-only mean is 0.566; the ResNet-34 SAR-only mean is 0.584.}
@@ -65,7 +66,7 @@ the U-Net and ResNet-34 per-event gains).
 
 \section*{Terrain and permanent-water ablation with GEOID-Flood training}
 
-\begin{table}[h]
+\begin{table}[H]
 \caption{Terrain and permanent-water ablation with GEOID-Flood training (unseen activations; 20 events: 5
 draws, 159 events: 3 seeds). Paired Δ with two-way 95\% CIs.}
 \centering
@@ -101,7 +102,7 @@ transfer, adding the JRC layer to HAND changes little (CIs over test events: +0.
 
 \section*{TerraMind with GEOID-Flood training}
 
-\begin{table}[h]
+\begin{table}[H]
 \caption{TerraMind (TM) and U-Net, ± HAND, with GEOID-Flood training (unseen activations, event-mean IoU,
 two-way 95\% CIs; number of improved events where given).}
 \centering
@@ -130,7 +131,7 @@ beats the U-Net, +0.042 \ci{+0.011}{+0.071}.
 
 \section*{Learning curve, equal-tiles control and the confirmation test}
 
-\begin{table}[h]
+\begin{table}[H]
 \caption{HAND gain against the number of training events with every subset cut to 500 tiles (flooded water
 only, 38 unseen test activations, 3 exploratory draws). Two-way 95\% CIs.}
 \centering
@@ -148,14 +149,14 @@ Training events & Event-mean IoU, SAR → + HAND & Δ (95\% CI) & Pooled IoU, SA
 \end{tabular}}
 \end{table}
 
-\begin{figure}[h]
+\begin{figure}[H]
 \centering
 \includegraphics[width=0.75\textwidth]{fig_tile_control.pdf}
 \caption{As the main learning-curve figure, with every training subset cut to 500 tiles spread evenly over
 its events (3 exploratory draws).}
 \end{figure}
 
-\begin{table}[h]
+\begin{table}[H]
 \caption{Event-mean IoU regressed on $\log_2$ events and $\log_2$ tiles over all 38 exploratory training
 draws (unseen activations; two-way 95\% CIs).}
 \centering
@@ -198,7 +199,7 @@ held-out 2026 events HAND gives +0.021 \ci{−0.004}{+0.053} at 159 events (sing
 
 \section*{Relief gate}
 
-\begin{table}[h]
+\begin{table}[H]
 \caption{Relief gate: gated minus ungated HAND model, \iouf{} under the GEOID-Flood protocol, unseen
 activations, two-way 95\% CIs.}
 \centering
@@ -224,7 +225,7 @@ that event motivated the rule, and under the protocol the gate lowers pooled IoU
 
 \section*{HAND dropout}
 
-\begin{table}[h]
+\begin{table}[H]
 \caption{HAND dropout ($p = 0.5$) minus no dropout, unseen activations, two-way 95\% CIs. Tail: events
 where the HAND model is worse than SAR only by more than 0.02 IoU (draw-averaged), without → with
 dropout. Sen1Floods11-trained models are scored on all 77/79 GEOID-Flood test events.}
@@ -250,7 +251,7 @@ gain over SAR only from +0.013 to +0.004. The Swedish tile (EMSR280\_1-0, Sen1Fl
 
 \section*{Where the gain occurs}
 
-\begin{table}[h]
+\begin{table}[H]
 \caption{HAND gain by pixel stratum for the Sen1Floods11-trained U-Net on GEOID-Flood test (3 seeds; flood: 77
 events, all water: 79). Pooled IoU SAR → SAR + HAND, pooled Δ with two-way 95\% CIs over seeds and the events
 with water in the stratum, and false-alarm rate FP/(FP + TN) in percent (identical in both label modes).
@@ -292,7 +293,7 @@ mangroves (5/7 events) & 0.205 → 0.177 & −0.030 [−0.042, +0.033] & 0.37 �
 
 \section*{HAND perturbations (mechanism tests)}
 
-\begin{table}[h]
+\begin{table}[H]
 \caption{Pre-registered HAND perturbations, Sen1Floods11-trained U-Net (3 seeds), all 77/79 GEOID-Flood test
 events: event-mean and pooled Δ with two-way 95\% CIs. Shifts are applied in both image axes; the blur is
 Gaussian with the given $\sigma$.}
@@ -322,7 +323,7 @@ Trained with other events' HAND − correct HAND & −0.037 [−0.053, −0.022]
 
 \section*{Additional figures}
 
-\begin{figure}[h]
+\begin{figure}[H]
 \centering
 \includegraphics[width=0.7\textwidth]{fig_gain_vs_terrain.pdf}
 \caption{Per-event HAND gain of the Sen1Floods11-trained U-Net on GEOID-Flood test events against the
@@ -330,7 +331,7 @@ event's median slope, for all water (left, 79 events) and flooded water only (ri
 all-water gain grows with terrain variation.}
 \end{figure}
 
-\begin{figure}[h]
+\begin{figure}[H]
 \centering
 \includegraphics[width=0.7\textwidth]{fig_backbones.pdf}
 \caption{HAND gain under the GEOID-Flood protocol (pooled \iouf{}, two-way 95\% CIs) for the single-image
