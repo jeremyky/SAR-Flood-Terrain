@@ -45,7 +45,7 @@ events, but +0.128 on its held-out Bolivia event and +0.059 in pooled water IoU 
 and slope recover only a quarter of it at the event level; shifting HAND by 500\,m in each axis,
 blurring it, or swapping in another flood's HAND removes the event-level gain, and a model trained with mismatched HAND gains nothing, so it
 is not a side effect of an extra input channel. A permanent-water map recovers none of the flood-extent
-gain and, with many training events, teaches the model to look for water only where it already was.
+gain and, with many training events, appears to teach the model to look for water only where it already was.
 \item \emph{A foundation model does not replace terrain.} HAND helps a fine-tuned 101\,M-parameter
 TerraMind~\cite{jakubik2025terramind} about as much as it helps a 7.8\,M-parameter U-Net in event-mean
 flood IoU (less for all water), and the small U-Net with HAND beats TerraMind without it.
