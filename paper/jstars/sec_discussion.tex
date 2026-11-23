@@ -23,11 +23,12 @@ unseen events.
 
 \subsection{Relief or drainage structure?}
 In the transfer from 11 Sen1Floods11 events to 79 external floods, the model uses what HAND says about the
-place: the gain disappears when HAND is shifted by 500\,m, blurred or taken from another flood, and a model
+place: the event-level gain disappears when HAND is shifted by 500\,m in each axis, blurred or taken from
+another flood (pooled, part of it survives on the largest low-lying areas), and a model
 trained on mismatched HAND gains nothing. DEM and slope recover only a quarter of the event-level flood
 gain, although more on the largest events. HAND is height relative to the local drainage network, which
-relief and slope only approximate; the perturbation results show that its exact position and its detail
-below a few hundred metres matter. Trained on 20 GEOID-Flood events, however, DEM and slope recover most of
+relief and slope only approximate; the perturbation results show that its position to within a few
+hundred metres and its detail at that scale matter (a 100-m shift costs little). Trained on 20 GEOID-Flood events, however, DEM and slope recover most of
 HAND's gain. A plausible reading is that a model trained on few, narrow events and applied far from them
 needs the drainage-relative height that HAND encodes, while a model trained on more varied events can infer
 where water collects from relief; we did not test this directly. In neither setting does a map of known
@@ -47,12 +48,9 @@ only, trading gains for losses. The losses sit in a few events and tiles that te
 pick out in advance; a fix would need to know when the DEM's drainage network is wrong.
 
 \subsection{Limitations}
-Most experiments use U-Nets (plain and ResNet-34); TerraMind was run with one learning rate, tuned on one
-GEOID-Flood draw and reused for the Sen1Floods11 runs, and only the base model. We use 3--5 seeds, and seed variance is
-large for individual events. All models train for a fixed number of steps, so small training sets are seen
-for more epochs; the equal-tiles result shows that extra tiles from the same events are redundant at this
-budget, not that data volume never matters. GEOID-Flood labels are CEMS rapid-mapping products~\cite{cems},
-not hand labels, and their quality varies by activation; 50 of the 79 test events are in Europe. The
-change-detection baseline stacks the pre-event image as two extra channels; we did not try dedicated change
-architectures or more than one pre-event image. HAND inherits the drainage-network errors of the GLO-30 DEM. The 10-event regime is noisy,
-and it is unclear why HAND gives less there.
+Besides the caveats stated with each result (one TerraMind configuration; a fixed step budget; 3--5 seeds),
+GEOID-Flood labels are CEMS rapid-mapping products~\cite{cems}, not hand labels, and their quality varies by
+activation; 50 of the 79 test events are in Europe. The change-detection baseline stacks the pre-event image
+as two extra channels rather than using a dedicated change architecture. HAND inherits the drainage-network
+errors of the GLO-30 DEM, and we did not test HAND from other DEMs. The 10-event regime is noisy, and it is
+unclear why HAND gives less there.

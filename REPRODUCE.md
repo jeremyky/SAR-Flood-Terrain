@@ -52,6 +52,7 @@ data root, `runs/` and `reports/` live under `$FLOODSEG_ROOT`, and `train.txt` i
 
 | paper | what | submit | report |
 |---|---|---|---|
+| III, Tables I–II | datasets and test-event selection | (section 2 above) | `scripts/prepare_geoid.py`; event counts from `scripts/external_report.py` and `learning_curve_report.py --unseen-only/--shared-only` |
 | V-A, Table S1 | Sen1Floods11 leave-one-event-out, 6 variants × 3 seeds (+ seeds 3–4 for the main pair; 30-m-stride monotonicity variants) | `bash scripts/sweep.sh loeo "0 1 2"` | `scripts/loeo_report.py`, `scripts/hand_strata.py` |
 | V-A, Fig. 1a | official split and Bolivia | `bash scripts/sweep.sh official "0 1 2"` | `scripts/official_report.py --runs runs --out reports/official_split.csv` |
 | V-B, Table III, Fig. 2, Fig. S2 | train on all 11 events, U-Net and ResNet-34, test on GEOID-Flood | `VARIANTS="sar_only sar_hand r34_sar_only r34_sar_hand" bash scripts/sweep.sh all "0 1 2"`, then `slurm/eval_external.sbatch` (geoid_test, geoid_test_flood) | `scripts/external_report.py`, `scripts/external_explain.py`, `scripts/example_tiles.py` |

@@ -1,12 +1,12 @@
 # Pre-registered analyses
 
-Five analyses were fixed in writing, with their analysis code, before their outcomes were computed. The
+Eight analyses were fixed in writing, with their analysis code, before their outcomes were computed. The
 texts below are copied from the study's lab notebook as written at the time (lightly formatted). The
 commit hashes refer to the development repository in which they were recorded; its timestamped history
 is the evidence that each plan predates its result and is available from the authors on request.
 
-Outcomes are reported in the paper whatever they showed. Four of the five were not supported or not
-borne out.
+Outcomes are reported in the paper whatever they showed. Of the first five, four were not supported or
+not borne out; the mechanism tests (#6) were supported; #7 and #8 are descriptive.
 
 ## 1. Does the HAND gain decline with the number of training events at fixed data?
 
@@ -142,7 +142,7 @@ import this repository's own `src/`, training rejects unknown data config keys a
 and #6 was resubmitted unchanged. The stratified evaluation (#7) ran under the same environment, but it uses
 no perturbation and the two code versions are otherwise identical, so it is kept.
 
-## Outcomes of 6–8 (2026-11-23)
+## Outcomes of 6–8 (2026-11-22)
 
 **6. Supported (both hypotheses).** Event-mean Δ vs SAR only, flood / all water: correct HAND +0.032 / +0.061;
 shifted 100 m +0.025 / +0.031; shifted 500 m +0.003 [−0.011, +0.018] / −0.003; blurred σ = 250 m −0.001 /
@@ -154,5 +154,5 @@ higher ground (false-alarm rate 0.77% → 0.19% at 5–10 m, 0.62% → 0.02% abo
 grassland, cropland, built-up and bare ground, small or none in herbaceous wetland. Paper Section V-B,
 Table S8.
 
-**8.** Country-cluster CIs are essentially the event-level ones (U-Net flood +0.032 [+0.018, +0.051] vs
-[+0.018, +0.050]; all water +0.061 [+0.039, +0.089] vs [+0.040, +0.087]). Paper Section V-B.
+**8.** Country-cluster CIs are essentially the event-level ones (U-Net flood +0.032 [+0.017, +0.051] vs
+[+0.018, +0.050], 34 countries, as one country has no flood event; all water +0.061 [+0.039, +0.089] vs [+0.040, +0.087]). Paper Section V-B.

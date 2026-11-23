@@ -86,15 +86,17 @@ Spearman correlation is +0.48 with median HAND, +0.47 with median slope and +0.4
 (Benjamini--Hochberg-adjusted $p \le 0.001$), and it falls with the event's water and wetland fraction.
 The flood-only trend is weaker (median HAND $\rho = +0.21$, adjusted $p = 0.15$). The gain is not a
 regional artefact: 50 of the 79 test events are in Europe, but the gain does not differ between Europe
-and elsewhere (flood only: $p = 0.18$ U-Net, 0.81 ResNet-34), and resampling the 34--35 countries instead of
-the events leaves its CI essentially unchanged (flood +0.032 \ci{+0.018}{+0.051}, all water +0.061
+and elsewhere (flood only: $p = 0.18$ U-Net, 0.81 ResNet-34). Resampling the 34--35 countries instead of
+the events leaves its two-way CI essentially unchanged (flood +0.032: \ci{+0.018}{+0.050} over events and
+seeds, \ci{+0.017}{+0.051} over countries and seeds; all water +0.061: \ci{+0.040}{+0.087} and
 \ci{+0.039}{+0.089}). Stratifying pixels (Table~S8) shows where the gain occurs. For flooded water the
 pooled gain is largest at 1--5\,m HAND (about +0.09) and smaller in the 0--1\,m band (+0.04), where most
 flood water lies, because HAND removes false alarms on higher ground: the false-alarm rate falls from 0.77\%
 to 0.19\% at 5--10\,m HAND and from 0.62\% to 0.02\% above 20\,m. On slopes steeper than 20\textdegree,
-where radar shadow and layover mimic water, all-water IoU rises from 0.065 to 0.174. The gain is positive
-in tree cover, grassland, cropland, built-up areas (flood event-mean +0.012 \ci{+0.003}{+0.023}; false
-alarms 0.54\% → 0.44\%) and bare ground (false alarms 31\% → 23\%), and small or absent in herbaceous wetland (pooled +0.002). Fig.~\ref{fig:tiles} shows typical gains on
+where radar shadow and layover mimic water, all-water IoU rises from 0.065 to 0.174. The pooled flood gain is positive
+in tree cover, grassland, cropland, built-up areas (+0.028 \ci{+0.005}{+0.058}; false alarms 0.54\% →
+0.44\%) and bare ground (false alarms 31\% → 23\%), uncertain in herbaceous wetland (+0.002
+\ci{−0.019}{+0.022}); in mangroves (seven events) HAND lowers all-water IoU (−0.060 \ci{−0.088}{−0.038}). Fig.~\ref{fig:tiles} shows typical gains on
 a floodplain and in mountains, and the main failure, discussed in Section~\ref{sec:failures}.
 
 \begin{figure*}[t]
@@ -167,8 +169,8 @@ identical in every row.}
 HAND given to the model & Flood, Δ vs SAR only & All water, Δ vs SAR only \\
 \midrule
 Correct HAND & +0.032 [+0.018, +0.050] & +0.061 [+0.040, +0.086] \\
-Shifted 100 m & +0.025 [+0.012, +0.041] & +0.031 [+0.012, +0.052] \\
-Shifted 500 m & +0.003 [−0.011, +0.018] & −0.003 [−0.019, +0.013] \\
+Shifted 100 m in x and y & +0.025 [+0.012, +0.041] & +0.031 [+0.012, +0.052] \\
+Shifted 500 m in x and y & +0.003 [−0.011, +0.018] & −0.003 [−0.019, +0.013] \\
 Blurred, $\sigma$ = 250 m & −0.001 [−0.015, +0.014] & −0.034 [−0.058, −0.010] \\
 Another event's HAND (test only) & −0.061 [−0.081, −0.041] & −0.122 [−0.151, −0.095] \\
 Another event's HAND (training and test) & −0.005 [−0.015, +0.006] & −0.001 [−0.021, +0.015] \\
@@ -180,15 +182,16 @@ Beating DEM and slope does not by itself show that the model uses what HAND says
 could come from normalization, regularization or an easy-to-learn extra channel. We therefore fixed four
 perturbations of the HAND input and one training control before running them (Table~\ref{tab:mechanism}).
 Both hypotheses were supported. With HAND from a tile of another event the trained model becomes much worse
-than SAR only (flood −0.061, all water −0.122), so it relies on HAND's content; shifted by 500\,m, the
-event-level gain disappears (+0.003 flood, −0.003 all water). A model trained and tested with another
+than SAR only (flood −0.061, all water −0.122), so it relies on HAND's content; shifted by 500\,m in both
+axes (about 700\,m), the event-level gain disappears (+0.003 flood, −0.003 all water). A model trained and tested with another
 event's HAND, which sees realistic HAND values that carry no information about the scene, gains nothing
 (−0.005 \ci{−0.015}{+0.006} flood): the gain is not a side effect of having a terrain-like channel. A
 100-m misregistration keeps most of the flood gain (+0.025) but halves the all-water gain, and blurring
 away detail below about 250\,m removes the gain, so fine drainage structure matters. Pooled over all pixels,
-the 500-m shift keeps part of the flood gain (+0.050 \ci{+0.020}{+0.083}; Table~S9), as large low-lying
+the 500-m shift keeps about two-thirds of the flood gain (+0.050 \ci{+0.020}{+0.083} of +0.074; Table~S9), as large low-lying
 areas stay low after a shift. Together with Table~\ref{tab:transfer_ablation}, this indicates that the gain comes
-from correctly located, spatially detailed height above drainage, not from relief or the extra channel.
+from correctly located, spatially detailed height above drainage across events, not from the extra
+channel and not only from relief, which helps mainly on the largest low-lying floods.
 
 \subsection{A foundation model does not replace terrain}
 \label{sec:fm}

@@ -42,8 +42,8 @@ nothing from HAND on that dataset's official test split (+0.007 IoU), whose tile
 events, but +0.128 on its held-out Bolivia event and +0.059 in pooled water IoU over 79 external floods
 (+0.061 in mean event IoU, improving 69 of them).
 \item \emph{The gain needs correctly located, detailed height above drainage.} In this transfer, elevation
-and slope recover only a quarter of it at the event level; shifting HAND by 500\,m, blurring it, or
-swapping in another flood's HAND removes it, and a model trained with mismatched HAND gains nothing, so it
+and slope recover only a quarter of it at the event level; shifting HAND by 500\,m in each axis,
+blurring it, or swapping in another flood's HAND removes the event-level gain, and a model trained with mismatched HAND gains nothing, so it
 is not a side effect of an extra input channel. A permanent-water map recovers none of the flood-extent
 gain and, with many training events, teaches the model to look for water only where it already was.
 \item \emph{A foundation model does not replace terrain.} HAND helps a fine-tuned 101\,M-parameter
@@ -51,13 +51,9 @@ TerraMind~\cite{jakubik2025terramind} about as much as it helps a 7.8\,M-paramet
 flood IoU (less for all water), and the small U-Net with HAND beats TerraMind without it.
 \end{enumerate}
 
-Around these, we contribute: an event-level comparison of three ways to use HAND, in which physics losses
-and masks do nothing, even when the loss is made to act at HAND's native resolution and measurably
-enforces its constraint; checks that the input gain survives threshold-free scoring and GEOID-Flood's own
-pre-/post-event protocol, holds in event IoU for a second backbone and under resampling by country, and
-where it occurs by height above drainage, slope and land cover; a learning curve over training events with an
-equal-tiles control, in which 500 tiles from all 159 GEOID-Flood events match all 8,712 and the flood-extent gain
-of HAND, clear when training on the 11 Sen1Floods11 events, is not detectable with 159 GEOID-Flood
-training events (a pre-registered test of a steady decline in between was null); a change-detection baseline, for which
-the pre-event image partly substitutes for terrain; two pre-registered remedies for HAND's failure cases,
-both negative; and a fully released pipeline with run outputs and checkpoints.
+We also show that HAND as a physics loss or mask does nothing, even when the loss demonstrably enforces its
+constraint; that the input gain survives threshold-free scoring, GEOID-Flood's own protocol and resampling
+by country, and where it occurs by HAND, slope and land cover; that with 159 GEOID-Flood training events the
+flood-extent gain is no longer detectable (a pre-registered test of a steady decline was null), while 500
+tiles from all 159 events match all 8,712; and that two pre-registered remedies for HAND's failure cases do
+not help. The full pipeline, run outputs and checkpoints are released.

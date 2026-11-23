@@ -32,7 +32,8 @@ left out of scoring so that a model trained to find all water is not penalized f
 it measures how well newly inundated water is delineated. GEOID-Flood's own \emph{protocol}
 (Section~\ref{sec:methods}) differences a pre- and a post-event prediction and counts permanent water as
 non-flood; it is the closest of the three to an operational flood-extent product. A terrain gain on all water
-alone would mean better water detection, not better flood mapping, so we report all three throughout.
+alone would mean better water detection, not better flood mapping, so we report flooded-only and all-water
+scores throughout and the protocol for the main comparisons.
 
 \begin{table}[t]
 \caption{GEOID-Flood test events used}
@@ -54,7 +55,7 @@ Held-out 2026 set (temporally disjoint) & 9 \\
 \bottomrule
 \end{tabular}
 \\[2pt]\raggedright\footnotesize Sen1Floods11-trained models are scored on all 77/79 events; GEOID-trained
-models on the 38/39 unseen activations (Section~\ref{sec:data}).
+models on the 38/39 unseen activations (Section~\ref{sec:unseen}).
 \end{table}
 
 \subsection{Overlap and cleaning}
@@ -65,9 +66,9 @@ Nigeria (EMSR314) events are in GEOID-Flood train; when GEOID-trained models are
 we drop those events and Spain.
 
 \subsection{Unseen activations}
+\label{sec:unseen}
 GEOID-Flood splits by AoI, not by activation: 41 of the 80 test activations also have AoIs in the
 training split, and 15 in validation. For GEOID-trained models we therefore report results on the 38
 flood (39 all-water) test events whose activation does not appear in GEOID-Flood train (``unseen
-activations''); results on all test events are given for completeness where they differ. The
-Sen1Floods11-trained models share no event with GEOID-Flood test once EMSR388 is removed, so all 77/79
-events are unseen for them.
+activations''). The Sen1Floods11-trained models share no event with GEOID-Flood test, so all 77/79 are
+unseen for them.

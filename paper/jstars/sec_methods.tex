@@ -59,13 +59,10 @@ well clear of zero or when it was pre-registered; differences whose CI only just
 bound within about 0.005 of it) are called suggestive, and the main conclusions do not rest on them. The
 central transfer result ($p < 10^{-4}$ over 79 events) is far from this boundary.
 
-\emph{Assumptions.} The bootstrap treats test events as exchangeable. Events from the same country may share
-weather systems, landscapes and mapping teams; resampling the 35 countries instead of the events leaves the
-headline CIs essentially unchanged (Section~\ref{sec:transfer}). In the learning curve, training draw $k$ is
-trained with seed $k$, so draw-to-draw and initialization variance are confounded, and draws of the same size
-overlap in their training events; the CIs therefore describe variation over draw--seed pairs, not over
-independent datasets. Three to five seeds per condition give limited information about training variance on
-its own.
+\emph{Assumptions.} The bootstrap treats test events as exchangeable; events from the same country may not
+be, so we also resample countries (Section~\ref{sec:transfer}). In the learning curve, draw $k$ is trained
+with seed $k$, so draw and initialization variance are confounded, and draws of one size share events: the
+CIs describe variation over draw--seed pairs, not over independent datasets.
 
 \subsection{GEOID-Flood protocol}
 GEOID-Flood scores single-image models by running them on the pre- and the post-event image and calling
@@ -75,8 +72,11 @@ tile) and report \iouf{} under it alongside our own label modes. Our test set di
 GEOID-Flood's (EMSR388 and EMSR853 excluded), so comparisons with their numbers are indicative.
 
 \subsection{Pre-registration}
-Five analyses were fixed in writing, with the analysis code committed to the repository, before their
+Eight analyses were fixed in writing, with the analysis code committed to the repository, before their
 outcomes were computed: the confirmation test of the learning curve (Section~\ref{sec:geoid}), the
-relief gate and HAND dropout (Section~\ref{sec:failures}), and the terrain ablation and TerraMind runs on
-the Sen1Floods11 transfer (Sections~\ref{sec:ablation} and \ref{sec:fm}). Post hoc analyses are marked
+relief gate and HAND dropout (Section~\ref{sec:failures}), the terrain ablation and TerraMind runs on the
+Sen1Floods11 transfer (Sections~\ref{sec:ablation} and \ref{sec:fm}), the HAND perturbation tests
+(Section~\ref{sec:mechanism}), and the stratified errors and country-cluster bootstrap
+(Section~\ref{sec:transfer}). The plans and outcomes are listed in the repository's
+\texttt{PREREGISTRATIONS.md}. Post hoc analyses are marked
 exploratory.
