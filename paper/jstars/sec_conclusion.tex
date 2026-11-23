@@ -1,16 +1,13 @@
 \section{Conclusion}
 \label{sec:conclusion}
 
-Evaluated on flood events the model has never seen, terrain helps a SAR flood-segmentation network as an
-input, and the usual same-event evaluation hides it. Trained on Sen1Floods11, a U-Net gains almost nothing
-from HAND on that dataset's own test split but improves water mapping on 69 of 79 external CEMS
-activations, and flood mapping too, including under GEOID-Flood's own protocol. The gain needs correctly
-located, detailed height above drainage: HAND shifted by 500\,m, blurred or borrowed from another flood
-removes the event-level gain, and relief alone recovers a quarter of it at the event level. A permanent-water map is no substitute, and a fine-tuned foundation model does not
-make HAND redundant. As a physics loss or mask, HAND does nothing. With 159 training events the
-flood-extent gain is no longer detectable, the shape of the decline in between is unresolved, and HAND's
-failure cases resisted two pre-registered remedies. For flood mapping with few labelled events, terrain is a
-cheap gain, and only evaluation on new floods shows it.
+Evaluated on floods the model has never seen, terrain helps a SAR flood-segmentation network as an input,
+and the usual same-event evaluation hides it: a U-Net trained on Sen1Floods11 gains almost nothing from
+HAND on that dataset's test split but improves water and flood mapping on 79 external CEMS activations. The
+gain needs correctly located, detailed height above drainage, not just relief, a permanent-water map or a
+larger pretrained model. As a physics loss or mask HAND does nothing, and with 159 training events its
+flood-extent gain is not detectable. With few labelled floods, terrain is a cheap gain that only evaluation
+on new floods reveals.
 
 \section*{Data and Code Availability}
 All data are public: Sen1Floods11~\cite{bonafilia2020sen1floods11}, GEOID-Flood~\cite{geoidflood} (CC BY

@@ -2,17 +2,16 @@
 Flood segmentation models for Sentinel-1 radar must work on new floods, yet they are usually tested on
 images from the flood events they were trained on. We show that this hides the value of terrain. A U-Net
 trained on the 11 events of Sen1Floods11 gains almost nothing from height above nearest drainage on that
-dataset's own test split (+0.007 intersection over union) but +0.128 on its held-out Bolivia event. On 79
-external Copernicus emergency activations, the same input raises mean event intersection over union from
-0.574 to 0.635 for water (69 of 79 events improved) and from 0.317 to 0.349 for flooded area, and the
-gain holds without a threshold and under the benchmark's pre- and post-event protocol. It needs the right
-terrain for the place: elevation and slope recover only a quarter of it at the event level, and that gain vanishes
-when the drainage input is displaced by about 700 m, blurred, or taken from another flood, and a model trained on such mismatched
-input gains nothing. A fine-tuned 101-million-parameter foundation model gains about as much in flood accuracy and,
-without the input, does not match the 7.8-million-parameter U-Net that has it. Used as a physics-based loss
-or a mask, the same terrain does nothing. Trained on 159 events, the flood-extent gain is no longer
-detectable, although a pre-registered test did not confirm a steady decline with the number of events. With
-few labelled floods, terrain is a cheap gain that same-event evaluations miss.
+dataset's own test split (+0.007 intersection over union) but +0.128 on its held-out Bolivia event, and on
+79 external Copernicus emergency activations it raises mean event intersection over union from 0.574 to
+0.635 for water and from 0.317 to 0.349 for flooded area, also without a threshold and under the
+benchmark's pre- and post-event protocol. The gain needs correctly located terrain: elevation and slope
+recover only a quarter of it at the event level, its event-level part vanishes when the drainage input is
+displaced by about 700 m, blurred, or taken from another flood, and a model trained on such mismatched input
+gains nothing. A fine-tuned 101-million-parameter foundation model gains about as much in flood accuracy
+and, without the input, does not match the smaller U-Net that has it. Used as a physics-based loss or mask,
+the same terrain does nothing, and with 159 training events its flood-extent gain is no longer detectable.
+With few labelled floods, terrain is a cheap gain that same-event evaluations miss.
 \end{abstract}
 
 \begin{IEEEkeywords}

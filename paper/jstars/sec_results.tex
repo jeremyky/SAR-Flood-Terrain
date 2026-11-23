@@ -31,7 +31,7 @@ whose test tiles come from the training events, HAND adds +0.007 ± 0.008 pooled
 ± standard deviation over 3 seeds); on its Bolivia hold-out, an event absent from training, it adds
 +0.128 ± 0.072 (0.556 → 0.685; per seed +0.160, +0.046, +0.179). Bolivia is a single event, but the
 contrast is the motivation for this study in miniature: an in-event split measures a different quantity
-from transfer to a new flood. Eleven events are too few to resolve the LOEO gain precisely; the next
+from transfer to a new flood (the external test below also changes dataset; Section~\ref{sec:discussion}). Eleven events are too few to resolve the LOEO gain precisely; the next
 section tests on 79 external events.
 
 \subsection{Transfer to 79 unseen events: HAND helps clearly}
@@ -89,7 +89,8 @@ regional artefact: 50 of the 79 test events are in Europe, but the gain does not
 and elsewhere (flood only: $p = 0.18$ U-Net, 0.81 ResNet-34). Resampling the 34--35 countries instead of
 the events leaves its two-way CI essentially unchanged (flood +0.032: \ci{+0.018}{+0.050} over events and
 seeds, \ci{+0.017}{+0.051} over countries and seeds; all water +0.061: \ci{+0.040}{+0.087} and
-\ci{+0.039}{+0.089}). Stratifying pixels (Table~S8) shows where the gain occurs. For flooded water the
+\ci{+0.039}{+0.089}). Stratifying pixels (pre-registered as descriptive; Table~S8) shows where the gain occurs, though not why,
+since strata are tied to geography and flood type. For flooded water the
 pooled gain is largest at 1--5\,m HAND (about +0.09) and smaller in the 0--1\,m band (+0.04), where most
 flood water lies, because HAND removes false alarms on higher ground: the false-alarm rate falls from 0.77\%
 to 0.19\% at 5--10\,m HAND and from 0.62\% to 0.02\% above 20\,m. On slopes steeper than 20\textdegree,
@@ -104,7 +105,9 @@ a floodplain and in mountains, and the main failure, discussed in Section~\ref{s
 \includegraphics[width=\textwidth]{fig_example_tiles.pdf}
 \caption{Example GEOID-Flood test tiles for the Sen1Floods11-trained U-Net (seed 0): SAR, HAND, label and
 the errors of the SAR-only and SAR + HAND models. Top: floodplain gain; middle: mountain gain; bottom:
-failure on Swedish lakes that sit above the DEM's drainage network (tile EMSR280\_1-0).}
+failure on Swedish lakes that sit above the DEM's drainage network (tile EMSR280\_1-0). Rows show windows of
+different size (labelled; full 10.24-km tile in the top row), cropped to the labelled area; IoU is computed
+over the whole tile.}
 \label{fig:tiles}
 \end{figure*}
 
@@ -240,7 +243,7 @@ protocol on all 77 test events, slightly above GEOID-Flood's own TerraMind-B (0.
 fine-tuned) and best single-image Sentinel-1 model (0.484).
 
 
-\subsection{With many training events, HAND stops helping on flood extent}
+\subsection{With 159 training events, HAND's flood-extent gain is not detectable}
 \label{sec:geoid}
 
 \begin{table*}[t]
