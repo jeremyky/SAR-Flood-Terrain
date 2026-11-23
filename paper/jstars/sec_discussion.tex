@@ -17,11 +17,11 @@ nothing; DEM and slope recover only a quarter of it. HAND is height relative to 
 network, which relief and slope only approximate, and its position to within a few hundred metres and its
 detail at that scale matter. Where it helps is consistent with this: HAND removes false alarms on higher
 ground and on steep, shadowed slopes. Pooled over pixels, part of the gain survives a 500-m shift and DEM
-and slope recover more of it, because the largest floods cover broad low-lying plains that stay low after
+and slope recover more of it, plausibly because the largest floods cover broad low-lying plains that stay low after
 a shift and that relief alone identifies; the event-level gain, which weights every flood equally, depends
 on the finer drainage structure. Terrain priors say where water \emph{can} be; a permanent-water map says
-where it \emph{has been}, and with many training events it teaches the model to look for water only there
-(flood recall 0.69 → 0.57). As a physics loss, by contrast, HAND adds nothing: trained models already
+where it \emph{has been}, and with 159 training events it appears to teach the model to look for water only there
+(pooled flood recall 0.69 → 0.57 at unchanged precision). As a physics loss, by contrast, HAND adds nothing: trained models already
 satisfy the tested constraints (monotonicity is violated on fewer than 0.5\% of pixel pairs), and enforcing
 them removes violations that are not where the errors are. Here the prior helps as an input, which
 carries information the SAR does not.
@@ -34,11 +34,11 @@ detectable on flood extent with 159 GEOID-Flood events---but they differ in data
 pre-registered test of a decline in between was null; draw-to-draw variance at 20--40 events is large. With
 20 GEOID-Flood training events, DEM and slope also recover most of HAND's gain, which suggests that more
 varied training lets a model infer where water collects from relief; we did not test this directly.
-\emph{The pre-event image} partly substitutes for terrain with few events (+0.024 vs.\ +0.066 at 20 events).
+\emph{The pre-event image} partly substitutes for terrain with few events (pooled gain at 20 events +0.024, not significant, vs.\ +0.066).
 
 \emph{Failure cases.} HAND fails on flat terrain where everything is near drainage (Somalia, EMSR419), on
-water bodies the DEM drainage network misses (the Swedish lakes), and on average in the seven mangrove
-events. Neither pre-registered remedy works: gating HAND on flat tiles removes gains, and HAND dropout
+water bodies the DEM drainage network misses (the Swedish lakes), and in mangroves (pooled over the seven
+events that contain them). Neither pre-registered remedy works: gating HAND on flat tiles removes gains, and HAND dropout
 shrinks the model toward SAR only. The losses sit in a few events that terrain statistics do not pick out
 in advance; a fix would need to know when the DEM's drainage network is wrong. The stratified results are
 descriptive: land-cover classes are tied to geography and flood type, so they show where the gain occurs,
