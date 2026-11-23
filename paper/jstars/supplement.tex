@@ -39,7 +39,7 @@ appear in GEOID-Flood train. Every number is produced by the scripts listed in t
 IoU and paired difference to the SAR-only model, with 95\% CI over events; $p$: Wilcoxon signed-rank over
 events. The 5-seed SAR-only mean is 0.566; the ResNet-34 SAR-only mean is 0.584.}
 \centering
-\resizebox{\linewidth}{!}{%
+\resizebox{\ifdim\width>\linewidth\linewidth\else\width\fi}{!}{%
 \begin{tabular}{@{}lcccc@{}}
 \toprule
 Variant & IoU & Δ vs SAR only & $p$ & Improved \\
@@ -69,7 +69,7 @@ the U-Net and ResNet-34 per-event gains).
 \caption{Terrain and permanent-water ablation with GEOID-Flood training (unseen activations; 20 events: 5
 draws, 159 events: 3 seeds). Paired Δ with two-way 95\% CIs.}
 \centering
-\resizebox{\linewidth}{!}{%
+\resizebox{\ifdim\width>\linewidth\linewidth\else\width\fi}{!}{%
 \begin{tabular}{@{}lcccc@{}}
 \toprule
 Comparison & Training events & Flood, event-mean Δ & Flood, pooled Δ & All water, event-mean Δ \\
@@ -105,7 +105,7 @@ transfer, adding the JRC layer to HAND changes little (CIs over test events: +0.
 \caption{TerraMind (TM) and U-Net, ± HAND, with GEOID-Flood training (unseen activations, event-mean IoU,
 two-way 95\% CIs; number of improved events where given).}
 \centering
-\resizebox{\linewidth}{!}{%
+\resizebox{\ifdim\width>\linewidth\linewidth\else\width\fi}{!}{%
 \begin{tabular}{@{}llcc@{}}
 \toprule
 Comparison & Labels & 20 events (5 draws) & 159 events (3 seeds) \\
@@ -134,7 +134,7 @@ beats the U-Net, +0.042 \ci{+0.011}{+0.071}.
 \caption{HAND gain against the number of training events with every subset cut to 500 tiles (flooded water
 only, 38 unseen test activations, 3 exploratory draws). Two-way 95\% CIs.}
 \centering
-\resizebox{\linewidth}{!}{%
+\resizebox{\ifdim\width>\linewidth\linewidth\else\width\fi}{!}{%
 \begin{tabular}{@{}lcccc@{}}
 \toprule
 Training events & Event-mean IoU, SAR → + HAND & Δ (95\% CI) & Pooled IoU, SAR → + HAND & Δ (95\% CI) \\
@@ -159,7 +159,7 @@ its events (3 exploratory draws).}
 \caption{Event-mean IoU regressed on $\log_2$ events and $\log_2$ tiles over all 38 exploratory training
 draws (unseen activations; two-way 95\% CIs).}
 \centering
-\resizebox{\linewidth}{!}{%
+\resizebox{\ifdim\width>\linewidth\linewidth\else\width\fi}{!}{%
 \begin{tabular}{@{}llcc@{}}
 \toprule
 Outcome & Labels & Per doubling of events & Per doubling of tiles \\
@@ -202,7 +202,7 @@ held-out 2026 events HAND gives +0.021 \ci{−0.004}{+0.053} at 159 events (sing
 \caption{Relief gate: gated minus ungated HAND model, \iouf{} under the GEOID-Flood protocol, unseen
 activations, two-way 95\% CIs.}
 \centering
-\resizebox{\linewidth}{!}{%
+\resizebox{\ifdim\width>\linewidth\linewidth\else\width\fi}{!}{%
 \begin{tabular}{@{}lcc@{}}
 \toprule
 Training events & Pooled & Event-mean \\
@@ -229,7 +229,7 @@ that event motivated the rule, and under the protocol the gate lowers pooled IoU
 where the HAND model is worse than SAR only by more than 0.02 IoU (draw-averaged), without → with
 dropout. Sen1Floods11-trained models are scored on all 77/79 GEOID-Flood test events.}
 \centering
-\resizebox{\linewidth}{!}{%
+\resizebox{\ifdim\width>\linewidth\linewidth\else\width\fi}{!}{%
 \begin{tabular}{@{}lcccc@{}}
 \toprule
 Training & Event-mean Δ, flood & Event-mean Δ, all water & Protocol pooled \iouf{} Δ & Tail (flood / protocol) \\
