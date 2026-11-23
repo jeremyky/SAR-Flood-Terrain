@@ -30,7 +30,7 @@ docstring_parser==0.18.0
 einops==0.8.2
 exceptiongroup @ file:///home/conda/feedstock_root/build_artifacts/exceptiongroup_1763918002538/work
 filelock==3.32.3
--e git+https://github.com/jeremyky/SAR-Flood-Terrain.git@571e28db235a9b45714d19f4a0960ece55da5981#egg=floodseg
+-e .  # this repository (floodseg), installed from the checkout
 fonttools @ file:///home/conda/feedstock_root/build_artifacts/fonttools_1789076212595/work
 frozenlist==1.8.0
 fsspec==2026.7.0
