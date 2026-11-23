@@ -15,4 +15,5 @@ source "$(conda info --base)/etc/profile.d/conda.sh"
 conda activate "${FLOODSEG_ENV:-$HOME/.conda/envs/floodseg}"
 export HF_HOME=${HF_HOME:-/scratch/$USER/hf}   # TerraMind weights (model.arch=terramind)
 cd "$SLURM_SUBMIT_DIR"
+export PYTHONPATH="$SLURM_SUBMIT_DIR/src${PYTHONPATH:+:$PYTHONPATH}"   # this checkout's floodseg
 python -m floodseg.train --config "$@"

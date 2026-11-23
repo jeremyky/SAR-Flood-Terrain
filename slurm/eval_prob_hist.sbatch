@@ -14,6 +14,7 @@ source "$(conda info --base)/etc/profile.d/conda.sh"
 conda activate "${FLOODSEG_ENV:-$HOME/.conda/envs/floodseg}"
 export HF_HOME=${HF_HOME:-/scratch/$USER/hf}   # TerraMind weights (model.arch=terramind)
 cd "$SLURM_SUBMIT_DIR"
+export PYTHONPATH="$SLURM_SUBMIT_DIR/src${PYTHONPATH:+:$PYTHONPATH}"   # this checkout's floodseg
 DATA=$1; NAME=$2; shift 2
 python scripts/eval_prob_hist.py eval --data-root "$DATA" --name "$NAME" "$@"
 echo "PROBHIST DONE"

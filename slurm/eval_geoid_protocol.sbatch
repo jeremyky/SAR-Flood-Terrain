@@ -14,6 +14,7 @@ source "$(conda info --base)/etc/profile.d/conda.sh"
 conda activate "${FLOODSEG_ENV:-$HOME/.conda/envs/floodseg}"
 export HF_HOME=${HF_HOME:-/scratch/$USER/hf}   # TerraMind weights (model.arch=terramind)
 cd "$SLURM_SUBMIT_DIR"
+export PYTHONPATH="$SLURM_SUBMIT_DIR/src${PYTHONPATH:+:$PYTHONPATH}"   # this checkout's floodseg
 SET=$1; shift
 D=/scratch/$USER/floodseg/data
 python scripts/eval_geoid_protocol.py eval --post $D/geoid_${SET}_raw --pre $D/geoid_${SET}_pre --name geoid_proto_$SET "$@"

@@ -132,3 +132,12 @@ Fixed 2026-11-22. The CI of the headline transfer difference (SAR + HAND − SAR
 ResNet-34, both label modes) recomputed resampling countries (35) and seeds instead of events and seeds
 (`scripts/cluster_bootstrap.py`), to account for events from the same country not being independent.
 Reported alongside the event-level CI whatever it shows.
+
+**Deviation (2026-11-22, before any outcome of #6 was seen).** The first submission of #6 ran with the
+`floodseg` package installed in the conda environment, which still pointed at the development repository's
+code without HAND perturbations: the three `sar_hand_swap` training runs silently ignored
+`data.hand_perturb` (they trained ordinary SAR + HAND models), and every evaluation job failed on start-up, so
+no result of #6 was produced or seen. The runs were moved out of the results tree; all SLURM scripts now
+import this repository's own `src/`, training rejects unknown data config keys and records the code path,
+and #6 was resubmitted unchanged. The stratified evaluation (#7) ran under the same environment, but it uses
+no perturbation and the two code versions are otherwise identical, so it is kept.

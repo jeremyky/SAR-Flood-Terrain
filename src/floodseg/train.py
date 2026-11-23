@@ -105,6 +105,9 @@ def evaluate(model, loader, device, threshold: float, hand_mask: float | None = 
     return trackers
 
 
+DATA_KEYS = {"root", "channels", "hand_dropout", "hand_perturb"}
+
+
 def git_commit() -> str:
     try:
         return subprocess.check_output(["git", "rev-parse", "--short", "HEAD"], text=True).strip()
@@ -119,13 +122,17 @@ def main() -> None:
     parser.add_argument("--eval-only", action="store_true", help="re-score an existing run's best.pt (pass its saved config.yaml)")
     args = parser.parse_args()
     cfg = load_config(args.config, args.overrides)
+    unknown = set(cfg["data"]) - DATA_KEYS
+    if unknown:  # a misspelt or unsupported option must not be silently ignored
+        raise ValueError(f"unknown data config keys {sorted(unknown)}; supported: {sorted(DATA_KEYS)}")
     seed_everything(cfg["seed"])
 
     root = Path(cfg["data"]["root"])
     run_dir = Path(cfg["output_root"]) / cfg["name"] / f"seed{cfg['seed']}"
     run_dir.mkdir(parents=True, exist_ok=True)
     if not args.eval_only:
-        (run_dir / "config.yaml").write_text(yaml.safe_dump({**cfg, "git_commit": git_commit()}, sort_keys=False))
+        prov = {"git_commit": git_commit(), "code_path": str(Path(__file__).resolve().parent)}
+        (run_dir / "config.yaml").write_text(yaml.safe_dump({**cfg, **prov}, sort_keys=False))
 
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     channels = tuple(cfg["data"]["channels"])

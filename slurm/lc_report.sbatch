@@ -12,6 +12,7 @@ set -uo pipefail
 source "$(conda info --base)/etc/profile.d/conda.sh"
 conda activate "${FLOODSEG_ENV:-$HOME/.conda/envs/floodseg}"
 cd "$SLURM_SUBMIT_DIR"
+export PYTHONPATH="$SLURM_SUBMIT_DIR/src${PYTHONPATH:+:$PYTHONPATH}"   # this checkout's floodseg
 S=/scratch/$USER/floodseg
 OUT=$S/reports/lc_$(date +%Y%m%d_%H%M)
 mkdir -p $OUT

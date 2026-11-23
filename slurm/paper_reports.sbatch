@@ -13,6 +13,7 @@ set -uo pipefail
 source "$(conda info --base)/etc/profile.d/conda.sh"
 conda activate "${FLOODSEG_ENV:-$HOME/.conda/envs/floodseg}"
 cd "$SLURM_SUBMIT_DIR"
+export PYTHONPATH="$SLURM_SUBMIT_DIR/src${PYTHONPATH:+:$PYTHONPATH}"   # this checkout's floodseg
 S=/scratch/$USER/floodseg
 TRAIN=$S/data/geoid_trainval/splits/train.txt
 OUT=${OUT:-$S/reports/paper_$(date +%Y%m%d)}
