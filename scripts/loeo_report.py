@@ -12,7 +12,7 @@ from pathlib import Path
 
 import numpy as np
 import pandas as pd
-from scipy.stats import wilcoxon
+from scipy.stats import spearmanr, wilcoxon
 
 
 def loeo_table(results: Path) -> pd.DataFrame:
@@ -56,6 +56,10 @@ def report_results(results: Path, pairs: list[str], seeds: list[str]) -> None:
     rows = [paired(t, *p.split(":"), rng) for p in pairs if all(x in t.columns for x in p.split(":"))]
     print("\nPaired over events (bootstrap 95% CI of mean IoU delta, Wilcoxon signed-rank):")
     print(pd.DataFrame(rows).round(3).to_string(index=False))
+    if {"sar_hand", "sar_only", "r34_sar_hand", "r34_sar_only"} <= set(t.columns):
+        rho, p = spearmanr(t.sar_hand - t.sar_only, t.r34_sar_hand - t.r34_sar_only, nan_policy="omit")
+        print(f"\nDo the same events gain on both backbones? Spearman rho of per-event HAND gains "
+              f"(U-Net vs ResNet-34) = {rho:+.2f}, p = {p:.2f}")
 
     for metric in ("recall", "precision", "dry_fp"):
         if metric in df:
