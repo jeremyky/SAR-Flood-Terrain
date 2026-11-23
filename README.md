@@ -4,7 +4,7 @@ Code and paper for an event-level study of whether terrain helps Sentinel-1 floo
 flood events they were not trained on.
 
 Jeremy Ky, Bao Duong, Rich Nguyen (University of Virginia).
-Manuscript: `paper/jstars/` (IEEE two-column), with supplementary material.
+Preprint (paper + supplement): [`paper/preprint.pdf`](paper/preprint.pdf). LaTeX source: `paper/jstars/`.
 
 ## Findings
 
