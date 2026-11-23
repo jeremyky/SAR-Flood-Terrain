@@ -98,3 +98,31 @@ def test_hand_dropout_replaces_only_hand_channel():
     assert (xk[2] >= 0).all() and (xd[2] == HAND_MISSING).all()
     with pytest.raises(ValueError):
         Fake(".", [Chip("Spain_1_S1Hand")], channels=("vv", "vh"), hand_dropout=0.5)
+
+
+def test_hand_perturbations_change_only_hand_and_keep_scored_pixels():
+    from floodseg.data import Chip, Sen1Floods11
+
+    class Fake(Sen1Floods11):
+        def _load(self, chip):
+            r = np.random.default_rng(len(chip.chip_id))
+            h = r.uniform(0, 30, (16, 16)).astype(np.float32)
+            h[0, 0] = np.nan
+            return {"vv": r.normal(-12, 3, (16, 16)).astype(np.float32), "vh": r.normal(-18, 3, (16, 16)).astype(np.float32),
+                    "hand": h, "hand_raw": h, "label": np.ones((16, 16), np.float32)}
+
+        def _load_hand(self, chip):
+            return self._load(chip)["hand_raw"]
+
+    chips = [Chip("Spain_1_S1Hand"), Chip("Ghana_2_S1Hand"), Chip("India_33_S1Hand")]
+    base = Fake(".", chips, channels=("vv", "vh", "hand"))[0]
+    for p in ("shift:3", "blur:2", "swap"):
+        s = Fake(".", chips, channels=("vv", "vh", "hand"), hand_perturb=p)[0]
+        assert np.allclose(np.asarray(s["x"])[:2], np.asarray(base["x"])[:2])          # SAR untouched
+        assert not np.allclose(np.asarray(s["x"])[2], np.asarray(base["x"])[2])        # HAND changed
+        assert np.array_equal(np.asarray(s["y"]), np.asarray(base["y"]))              # same scored pixels
+        assert np.isfinite(np.asarray(s["x"])).all()
+    d = Fake(".", chips, channels=("vv", "vh", "hand"), hand_perturb="swap")
+    assert all(chips[d._donor[i]].event != chips[i].event for i in range(len(chips)))
+    with pytest.raises(ValueError):
+        Fake(".", chips, channels=("vv", "vh"), hand_perturb="swap")

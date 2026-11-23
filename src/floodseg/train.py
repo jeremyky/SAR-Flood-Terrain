@@ -134,10 +134,12 @@ def main() -> None:
     workers = tc.get("num_workers", 4)
     train_loader = DataLoader(
         D.Sen1Floods11(root, splits["train"], channels, crop=tc.get("crop", 256), augment=True,
-                        hand_dropout=cfg["data"].get("hand_dropout", 0.0)),
+                        hand_dropout=cfg["data"].get("hand_dropout", 0.0),
+                        hand_perturb=cfg["data"].get("hand_perturb")),
         batch_size=tc["batch_size"], shuffle=True, num_workers=workers, drop_last=True, persistent_workers=workers > 0,
     )
-    eval_loader = lambda chips: DataLoader(D.Sen1Floods11(root, chips, channels), batch_size=4, num_workers=workers)
+    eval_loader = lambda chips: DataLoader(D.Sen1Floods11(root, chips, channels, hand_perturb=cfg["data"].get("hand_perturb")),
+                                           batch_size=4, num_workers=workers)
     val_loader = eval_loader(splits["valid"])
 
     model = build_model(len(channels), cfg.get("model", {})).to(device)

@@ -32,6 +32,9 @@ def main() -> None:
     parser.add_argument("--exclude-events", nargs="*", default=[], help="events to leave out (e.g. floods also in the training set)")
     parser.add_argument("--batch-size", type=int, default=2)
     parser.add_argument("--workers", type=int, default=6)
+    parser.add_argument("--hand-perturb", default=None,
+                        help="perturb the HAND input at test time: shift:<px>, blur:<px> or swap (see floodseg.data); "
+                             "default: the run's own data.hand_perturb, if any")
     args = parser.parse_args()
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     chips = [c for c in D.all_chips(args.data_root) if c.event not in args.exclude_events]
@@ -46,7 +49,9 @@ def main() -> None:
         channels = tuple(cfg["data"]["channels"])
         model = build_model(len(channels), cfg.get("model", {})).to(device)
         model.load_state_dict(torch.load(run / "best.pt", map_location=device))
-        loader = DataLoader(D.Sen1Floods11(args.data_root, chips, channels), batch_size=args.batch_size, num_workers=args.workers)
+        perturb = args.hand_perturb or cfg["data"].get("hand_perturb")
+        loader = DataLoader(D.Sen1Floods11(args.data_root, chips, channels, hand_perturb=perturb),
+                            batch_size=args.batch_size, num_workers=args.workers)
         trackers = evaluate(model, loader, device, cfg["eval"].get("threshold", 0.5), hand_mask=cfg["eval"].get("hand_mask"))
         out.mkdir(exist_ok=True)
         (out / "metrics.json").write_text(json.dumps({k: t.summary() for k, t in trackers.items() if t.rows}, indent=1))

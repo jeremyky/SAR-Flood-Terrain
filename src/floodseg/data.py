@@ -116,6 +116,7 @@ class Sen1Floods11(Dataset):
         crop: int | None = None,
         augment: bool = False,
         hand_dropout: float = 0.0,
+        hand_perturb: str | None = None,
     ) -> None:
         self.root = Path(root)
         self.chips = chips
@@ -130,6 +131,29 @@ class Sen1Floods11(Dataset):
         self.hand_dropout = hand_dropout
         if hand_dropout and "hand" not in self.channels:
             raise ValueError("hand_dropout needs a hand channel")
+        # HAND perturbations (mechanism tests): the model's HAND input is altered, the scored pixels are not.
+        #   shift:<px>  HAND rolled by <px> pixels in both axes (misregistration)
+        #   blur:<px>   Gaussian blur with sigma <px> pixels (removes fine drainage detail)
+        #   swap        HAND of a tile from another event (realistic values, wrong place); deterministic
+        #               donor per tile at evaluation, a random donor per sample when training (augment=True)
+        self.hand_perturb = hand_perturb
+        if hand_perturb:
+            kind = hand_perturb.split(":")[0]
+            if kind not in ("shift", "blur", "swap") or "hand" not in self.channels:
+                raise ValueError(f"bad hand_perturb {hand_perturb!r} (needs a hand channel)")
+            if hand_dropout:
+                raise ValueError("hand_perturb and hand_dropout are exclusive")
+            rng = np.random.default_rng(0)
+            n = len(chips)
+            perm = rng.permutation(n)
+            self._donor = []
+            for i in range(n):
+                j = int(perm[i])
+                for _ in range(n):
+                    if chips[j].event != chips[i].event:
+                        break
+                    j = (j + 1) % n
+                self._donor.append(j)
 
     def __len__(self) -> int:
         return len(self.chips)
@@ -159,13 +183,41 @@ class Sen1Floods11(Dataset):
                 raw["hand"] = raw["hand_raw"]
         return raw
 
+    def _perturbed_hand(self, idx: int, hand: np.ndarray) -> np.ndarray:
+        kind, _, arg = self.hand_perturb.partition(":")
+        h = hand.astype(np.float32)
+        if kind == "shift":
+            h = np.roll(h, (int(arg), int(arg)), axis=(0, 1))
+        elif kind == "blur":
+            from scipy.ndimage import gaussian_filter
+            fill = np.nanmedian(h) if np.isfinite(h).any() else 0.0
+            h = gaussian_filter(np.where(np.isfinite(h), h, fill), float(arg))
+        else:  # swap
+            if self.augment:
+                j = random.randrange(len(self.chips))
+                while self.chips[j].event == self.chips[idx].event and len({c.event for c in self.chips}) > 1:
+                    j = random.randrange(len(self.chips))
+            else:
+                j = self._donor[idx]
+            d = self._load_hand(self.chips[j])
+            out = np.full_like(h, np.nanmedian(d) if np.isfinite(d).any() else 0.0)
+            r, c = min(h.shape[0], d.shape[0]), min(h.shape[1], d.shape[1])
+            out[:r, :c] = d[:r, :c]
+            h = out
+        return np.nan_to_num(normalize("hand", h), nan=0.0)
+
+    def _load_hand(self, chip: Chip) -> np.ndarray:
+        return _read(self.root / "terrain" / f"{chip.chip_id}_HAND.tif")[0]
+
     def __getitem__(self, idx: int) -> dict:
         chip = self.chips[idx]
         raw = self._load(chip)
         x = np.stack([normalize(ch, raw[ch]) for ch in self.channels])
         y = raw["label"]
-        missing = ~np.isfinite(x).all(axis=0)
+        missing = ~np.isfinite(x).all(axis=0)  # from the real inputs, so perturbations score the same pixels
         x = np.nan_to_num(x, nan=0.0)
+        if self.hand_perturb:
+            x[self.channels.index("hand")] = self._perturbed_hand(idx, raw["hand_raw"])
         if self.hand_dropout and random.random() < self.hand_dropout:
             x[self.channels.index("hand")] = HAND_MISSING
         y = np.where(missing, IGNORE, y)  # pixels without full input are ignored, not guessed

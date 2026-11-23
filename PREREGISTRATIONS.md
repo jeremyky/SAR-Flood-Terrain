@@ -93,3 +93,42 @@ Fixed 2026-11-21 before training (commit 6f7aacf).
 **Outcome:** HAND gain on TerraMind, flood event-mean +0.031 [−0.000, +0.066] (U-Net +0.032), all water
 +0.040 [+0.004, +0.081] (U-Net +0.061); the U-Net with HAND beats TerraMind without it (flood +0.045
 [+0.022, +0.075]). Paper Section V-D, Table IV.
+
+## 6. Does the gain need the right HAND for the place? (mechanism tests)
+
+Fixed 2026-11-22, before any of these runs or evaluations, in response to an internal review asking whether
+the HAND gain reflects drainage information about the scene or a side effect (normalization, regularization,
+an easy-to-learn extra channel).
+
+Models trained on the 11 Sen1Floods11 events (3 seeds), scored on all 77/79 GEOID-Flood test events,
+flooded-only and all-water labels (`scripts/mechanism_report.py`, two-way 95% CIs over seeds × events,
+event-mean IoU primary, pooled secondary). The scored pixels are identical in every condition; only the
+model's HAND input changes (`floodseg.data`, `hand_perturb`).
+
+- **Test-time perturbations** of the trained SAR + HAND models: `shift:10` (100 m misregistration),
+  `shift:50` (500 m), `blur:25` (Gaussian, σ = 250 m), `swap` (HAND of a tile from another event, fixed
+  donor per tile). Each compared with SAR only and with the unperturbed SAR + HAND model.
+- **Training-time control** `sar_hand_swap`: trained and tested with swapped HAND (a random tile of another
+  event per training sample; a fixed donor per tile at test), so the model sees realistic HAND values that
+  carry no information about the scene. Compared with SAR only and with SAR + HAND.
+
+Hypotheses: (H1) with `swap` and `shift:50` the gain over SAR only largely disappears (falls by more than half
+or its CI includes zero), i.e. the gain needs correctly located HAND; (H2) `sar_hand_swap` gains nothing over
+SAR only (CI includes zero), i.e. the gain is not a side effect of having an extra terrain-like channel.
+`shift:10` (robustness to misregistration) and `blur:25` (fine drainage detail) are descriptive. No other
+perturbation, magnitude or test set will be tried; results are reported whatever they show.
+
+## 7. Where does the gain occur? (descriptive)
+
+Fixed 2026-11-22. Same models (SAR only, SAR + HAND, 11 events, 3 seeds), all GEOID-Flood test events, both
+label modes: confusion counts per HAND band (0–1, 1–2, 2–5, 5–10, 10–20, > 20 m), slope band (0–2, 2–5, 5–10,
+10–20, > 20°) and ESA WorldCover class (`scripts/strata_external.py`). Reported: pooled IoU per stratum,
+HAND gain with two-way CIs, and false-alarm rate FP / (FP + TN), in particular in built-up areas. Descriptive;
+no hypothesis test.
+
+## 8. Geographic-cluster sensitivity of the headline result
+
+Fixed 2026-11-22. The CI of the headline transfer difference (SAR + HAND − SAR only, event-mean IoU, U-Net and
+ResNet-34, both label modes) recomputed resampling countries (35) and seeds instead of events and seeds
+(`scripts/cluster_bootstrap.py`), to account for events from the same country not being independent.
+Reported alongside the event-level CI whatever it shows.

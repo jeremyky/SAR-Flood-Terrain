@@ -35,6 +35,8 @@ declare -A OVERRIDES=(
   [r34_sar_hand]="model.encoder=resnet34 data.channels=[vv,vh,hand]"
   # HAND modality dropout: HAND replaced by -1 on a random 50% of training chips (2026-11-21)
   [sar_hand_md]="data.channels=[vv,vh,hand] data.hand_dropout=0.5"
+  # HAND from a tile of another event, in training and test (mechanism control, PREREGISTRATIONS.md #6)
+  [sar_hand_swap]="data.channels=[vv,vh,hand] data.hand_perturb=swap"
 )
 VARIANTS=${VARIANTS:-"sar_only sar_hand sar_terrain sar_mono sar_ceil sar_hand_mono"}
 
