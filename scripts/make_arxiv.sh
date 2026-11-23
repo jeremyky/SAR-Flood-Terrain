@@ -2,7 +2,7 @@
 # Self-contained arXiv source bundle: one document with the paper followed by the supplementary material,
 # the compiled bibliography (.bbl; arXiv does not run BibTeX reliably), refs.bib and the figure PDFs in one
 # flat folder, then a test build of the bundle itself.
-#   bash scripts/make_arxiv.sh            # -> paper/arxiv/, paper/arxiv.tar.gz, paper/arxiv_preview.pdf
+#   bash scripts/make_arxiv.sh            # -> paper/arxiv/, paper/arxiv.tar.gz, paper/arxiv_preview.pdf (+ paper/preprint.pdf)
 set -euo pipefail
 cd "$(dirname "$0")/.."
 TECTONIC=${TECTONIC:-$HOME/.conda/envs/tex/bin/tectonic}
@@ -43,5 +43,6 @@ PY
 ( cd "$OUT" && "$TECTONIC" -X compile main.tex >/dev/null 2>&1 ) || { echo "bundle test build FAILED"; exit 1; }
 pages=$(pdfinfo "$OUT/main.pdf" 2>/dev/null | awk '/Pages/ {print $2}')
 mv "$OUT/main.pdf" paper/arxiv_preview.pdf
+cp paper/arxiv_preview.pdf paper/preprint.pdf  # committed copy linked from the README
 tar -C paper -czf paper/arxiv.tar.gz arxiv
 echo "bundle: $(ls "$OUT" | wc -l) files + $(ls "$OUT/figures" | wc -l) figures -> paper/arxiv.tar.gz; preview paper/arxiv_preview.pdf (${pages:-?} pages)"
