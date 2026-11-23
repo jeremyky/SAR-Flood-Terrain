@@ -4,7 +4,7 @@
 Tables and figures marked S are in the supplementary material.
 
 
-\subsection{Physics losses and masks do nothing; same-event splits hide the input gain}
+\subsection{The tested physics losses and masks do nothing; same-event splits hide the input gain}
 \label{sec:loeo}
 
 We first hold out each of the 11 Sen1Floods11 events in turn (Table~S1). The physics losses change
@@ -148,9 +148,9 @@ and slightly lowers flood IoU (−0.005 \ci{−0.009}{−0.001}); HAND beats it 
 \ci{+0.024}{+0.060} all water, +0.038 \ci{+0.023}{+0.054} flood). With GEOID-Flood training (Table~S2),
 JRC matches HAND's all-water gain at 20 events but explains none of the flood gain, and at 159 events it
 \emph{hurts} flood extent (−0.054 \ci{−0.089}{−0.024} event-mean, −0.078 pooled): pooled flood recall on
-unseen activations falls from 0.69 to 0.57 at unchanged precision (0.73 → 0.74). The model learns that
-water is where the map says water already is and misses new flood water---a shortcut that a static water
-map invites and that HAND, which marks where water \emph{could} collect, does not.
+unseen activations falls from 0.69 to 0.57 at unchanged precision (0.73 → 0.74). We read this as a shortcut:
+the model learns that water is where the map says water already is and misses new flood water, which a
+static water map invites and HAND, which marks where water \emph{could} collect, does not.
 
 \subsection{A foundation model does not replace terrain}
 \label{sec:fm}
@@ -188,7 +188,9 @@ as much as it helps the U-Net in flood extent (+0.031 vs.\ +0.032 event-mean, th
 +0.036 \ci{+0.006}{+0.075} under the protocol, event-mean) and somewhat less for all water (+0.040 vs.\
 +0.061). Without HAND, TerraMind is no better than the plain U-Net, and the 7.8\,M-parameter U-Net with HAND
 beats it in all three measures of Table~\ref{tab:fm_s1} (flood +0.045 \ci{+0.022}{+0.075}, all water +0.052
-\ci{+0.024}{+0.087}). With few training events, pretraining does not substitute for terrain.
+\ci{+0.024}{+0.087}). With few training events, pretraining does not substitute for terrain in this configuration. These
+comparisons use one fine-tuning setup (base model, U-Net decoder, one learning rate, HAND as an extra
+patch-embedded band); more tuning or other fusion designs could change the ranking.
 
 With GEOID-Flood training (Table~S3) the HAND gain on TerraMind at 20 events again matches the U-Net's
 (flood +0.031 vs.\ +0.032; both CIs only just exclude zero) and is gone at 159 events. Pretraining helps
@@ -231,7 +233,10 @@ Sen1Floods11 minus overlapping events & 8 & 0.512 → 0.530 & +0.018 [+0.008, +0
 \\[2pt]\raggedright\footnotesize $^\dagger$CI resamples test events only.
 \end{table*}
 
-Trained on GEOID-Flood's 159 training events, the picture changes (Table~\ref{tab:geoid}). On flood
+Trained on GEOID-Flood's 159 training events, the picture changes (Table~\ref{tab:geoid}). This endpoint
+differs from the 11-event one in training data (GEOID-Flood rather than Sen1Floods11) and in test events
+(the 38/39 unseen activations rather than all 77/79), not only in the number of events; the learning curve
+below varies the event count within GEOID-Flood. On flood
 extent, HAND does nothing on unseen activations on either metric (event-mean −0.001, pooled +0.011, both
 CIs include zero); threshold-free, flood AP is unchanged too (event-mean −0.000 \ci{−0.014}{+0.012}, CI over test events). On
 all water it still helps, though with CIs close to zero (+0.023 \ci{+0.004}{+0.045} event-mean, +0.050
@@ -300,7 +305,9 @@ clear gain when training on 11 events and testing externally, and no flood-exten
 
 \emph{Events, not tiles.} A control cuts every subset to exactly 500 tiles spread evenly over its events
 (3 draws; Table~S4, Fig.~S1). 500 tiles from all 159 events match all 8,712 for the SAR-only model (flood
-event-mean 0.381 vs.\ 0.381; all water 0.632 vs.\ 0.625). Regressing event-mean IoU on log events and log
+event-mean 0.381 vs.\ 0.381; all water 0.632 vs.\ 0.625). Because the step budget is fixed and each subset
+has different events, this shows that extra tiles from the same events add nothing at this budget; it does
+not isolate event diversity as a cause. Regressing event-mean IoU on log events and log
 tiles over all 38 exploratory draws (Table~S5), the SAR-only model improves with each doubling of events
 (flood +0.007 \ci{+0.001}{+0.015}, all water +0.014 \ci{+0.004}{+0.028}; suggestive by our criterion) and
 not with more tiles (−0.001 and −0.004, CIs including zero).
@@ -309,7 +316,8 @@ not with more tiles (−0.001 and −0.004, CIs including zero).
 \label{sec:cd}
 
 GEOID-Flood provides a pre-event Sentinel-1 image for every tile, so a model can be given both images at
-once. We train the same U-Net on [VV, VH, VV\textsubscript{pre}, VH\textsubscript{pre}] (± HAND) to predict
+once. Operationally, Sentinel-1's routine acquisitions usually supply a recent pre-event image of the same
+orbit, but seasonal changes in vegetation and soil moisture between the two dates add their own errors. We train the same U-Net on [VV, VH, VV\textsubscript{pre}, VH\textsubscript{pre}] (± HAND) to predict
 flooded water directly, with permanent water and background as negatives, i.e., GEOID-Flood's flood class.
 All 8,712 training tiles have a pre-event image; requiring both images removes 0.8\% of valid pixels. It
 is scored on exactly the tiles and pixels of the protocol-matched single-image numbers, so the rows of

@@ -49,6 +49,26 @@ def error_map(pred: np.ndarray, y: np.ndarray) -> np.ndarray:
     return out
 
 
+def view_window(y: np.ndarray) -> tuple[slice, slice]:
+    """Crop to the labelled area; if that is a long strip, take the square window inside it that holds the
+    most labelled water (a zoom), so unlabelled pixels do not dominate the panel."""
+    v = y != D.IGNORE
+    r, c = np.where(v)
+    r0, r1, c0, c1 = r.min(), r.max() + 1, c.min(), c.max() + 1
+    h, w = r1 - r0, c1 - c0
+    if max(h, w) <= 1.5 * min(h, w):
+        return slice(r0, r1), slice(c0, c1)
+    s = min(h, w)
+    water = (y == 1).astype(np.int64)
+    if w > h:
+        cols = water[r0:r1].sum(0)[c0:c1]
+        best = int(np.argmax(np.convolve(cols, np.ones(s, dtype=np.int64), mode="valid")))
+        return slice(r0, r1), slice(c0 + best, c0 + best + s)
+    rows = water[:, c0:c1].sum(1)[r0:r1]
+    best = int(np.argmax(np.convolve(rows, np.ones(s, dtype=np.int64), mode="valid")))
+    return slice(r0 + best, r0 + best + s), slice(c0, c1)
+
+
 def iou(pred: np.ndarray, y: np.ndarray) -> float:
     v = y != D.IGNORE
     tp, fp, fn = (pred & (y == 1) & v).sum(), (pred & (y == 0) & v).sum(), (~pred & (y == 1) & v).sum()
@@ -65,6 +85,7 @@ def main() -> None:
     args = parser.parse_args()
 
     errors = ListedColormap([DRY, HIT, FALSE_ALARM, MISS, IGNORED])
+    images = {}
     cols = ["SAR VV (dB)", "HAND (m)", "Label", "SAR only", "SAR + HAND"]
     fig, axes = plt.subplots(len(args.chips), len(cols), figsize=(2.1 * len(cols), 2.25 * len(args.chips) + 0.6))
     axes = np.atleast_2d(axes)
@@ -77,6 +98,8 @@ def main() -> None:
         with __import__("rasterio").open(args.data_root / D.HAND_DIR / "S1Hand" / f"{chip_id}_S1Hand.tif") as src:
             vv = src.read(1)
         label = np.where(y == D.IGNORE, 4, np.where(y == 1, 1, 0))
+        rs, cs = view_window(y)
+        zoom = (rs.stop - rs.start) * (cs.stop - cs.start) < y.size
         panels = [
             (vv, dict(cmap="gray", vmin=-25, vmax=0)),
             (np.clip(hand, 0, 30), dict(cmap="Blues_r", vmin=0, vmax=30)),  # sequential, one hue: dark = near drainage
@@ -86,21 +109,32 @@ def main() -> None:
         ]
         for c, (img, kw) in enumerate(panels):
             ax = axes[r, c]
-            ax.imshow(img, interpolation="nearest", **kw)
+            images[c] = ax.imshow(img[rs, cs], interpolation="nearest", **kw)
             ax.set_xticks([])
             ax.set_yticks([])
             for spine in ax.spines.values():
                 spine.set_visible(False)
             if r == 0:
                 ax.set_title(cols[c], fontsize=9)
-        axes[r, 0].set_ylabel(f"{chip.event}\n{chip_id.split('_', 1)[1]}", fontsize=8)
+        km = (cs.stop - cs.start) * 10 / 1000
+        axes[r, 0].set_ylabel(f"{chip.event}\n{chip_id.split('_', 1)[1]}" + (f"\n({km:.1f} km window)" if zoom else ""), fontsize=8)
         axes[r, 3].set_xlabel(f"IoU {iou(pred_s, y):.2f}", fontsize=8)
         axes[r, 4].set_xlabel(f"IoU {iou(pred_h, y):.2f}", fontsize=8)
     handles = [Patch(color=HIT, label="water, detected"), Patch(color=FALSE_ALARM, label="false alarm"),
-               Patch(color=MISS, label="water, missed"), Patch(color=IGNORED, label="not labelled")]
-    fig.legend(handles=handles, loc="lower center", ncol=4, frameon=False, fontsize=8)
+               Patch(color=MISS, label="water, missed"), Patch(facecolor=DRY, edgecolor="#8a8984", lw=0.5, label="dry, correct"),
+               Patch(color=IGNORED, label="not labelled (not scored)")]
     fig.patch.set_facecolor(SURFACE)
-    fig.tight_layout(rect=(0, 0.04, 1, 1))
+    fig.tight_layout(rect=(0, 0.09, 1, 1))
+    # colour bars under the SAR and HAND columns, legend under the label / error columns
+    for c, (label, ticks) in {0: ("VV backscatter (dB)", [-25, -15, -5, 0]), 1: ("HAND (m; ≥30 shown as 30)", [0, 10, 20, 30])}.items():
+        pos = axes[-1, c].get_position()
+        cax = fig.add_axes([pos.x0 + 0.1 * pos.width, 0.055, 0.8 * pos.width, 0.012])
+        cb = fig.colorbar(images[c], cax=cax, orientation="horizontal", ticks=ticks)
+        cb.ax.tick_params(labelsize=7, length=2)
+        cb.set_label(label, fontsize=7, labelpad=1)
+    x0 = axes[-1, 2].get_position().x0
+    fig.legend(handles=handles, loc="lower left", bbox_to_anchor=(x0, 0.0), ncol=3, frameon=False, fontsize=7.5,
+               handlelength=1.2, columnspacing=1.0)
     fig.savefig(args.out, dpi=150)
     fig.savefig(args.out.with_suffix(".pdf"), dpi=400)  # image panels rasterized at 400 dpi (JSTARS colour)
     print("wrote", args.out)

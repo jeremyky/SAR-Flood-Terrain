@@ -24,11 +24,38 @@ and derive slope from the DEM; ESA WorldCover 2021~\cite{zanaga2022worldcover} i
 events.
 
 \subsection{Label modes}
-GEOID-Flood separates permanent from flooded water. We score it in two label modes: \emph{all water}
-(permanent plus flooded, the Sen1Floods11 convention, which the Sen1Floods11-trained models were trained
-to predict) and \emph{flooded water only} (permanent water ignored in scoring). We also
-score GEOID-Flood's own protocol, which differences a pre- and a post-event prediction
-(Section~\ref{sec:methods}).
+GEOID-Flood separates permanent from flooded water, and the two are different tasks. We report three
+scores. \emph{All water} (permanent plus flooded, the Sen1Floods11 convention that the
+Sen1Floods11-trained models were trained to predict) measures water detection in a single post-event image.
+\emph{Flooded water only} scores the same prediction against the flood class, with permanent-water pixels
+left out of scoring so that a model trained to find all water is not penalized for finding rivers and lakes;
+it measures how well newly inundated water is delineated. GEOID-Flood's own \emph{protocol}
+(Section~\ref{sec:methods}) differences a pre- and a post-event prediction and counts permanent water as
+non-flood; it is the closest of the three to an operational flood-extent product. A terrain gain on all water
+alone would mean better water detection, not better flood mapping, so we report all three throughout.
+
+\begin{table}[t]
+\caption{GEOID-Flood test events used}
+\label{tab:events}
+\centering
+\footnotesize
+\begin{tabular}{@{}lr@{}}
+\toprule
+Step & Events \\
+\midrule
+Test activations in the release & 82 \\
+\quad $-$ EMSR388 (the Sen1Floods11 Spain flood) & 81 \\
+\quad $-$ EMSR853 (pre-event image only) & 80 \\
+Containing water (all-water scores) & 79 \\
+Containing flood (flood-only and protocol scores) & 77 \\
+\quad of which activation absent from GEOID-Flood train & 38 (39 with water) \\
+\quad of which activation also in GEOID-Flood train & 39 (40 with water) \\
+Held-out 2026 set (temporally disjoint) & 9 \\
+\bottomrule
+\end{tabular}
+\\[2pt]\raggedright\footnotesize Sen1Floods11-trained models are scored on all 77/79 events; GEOID-trained
+models on the 38/39 unseen activations (Section~\ref{sec:data}).
+\end{table}
 
 \subsection{Overlap and cleaning}
 CEMS activation EMSR388 is the Sen1Floods11 Spain 2019 flood and is excluded from the GEOID-Flood test
