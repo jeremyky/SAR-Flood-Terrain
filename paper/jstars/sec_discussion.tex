@@ -22,22 +22,22 @@ JRC layer is added. Studies that fuse permanent-water layers with SAR should che
 unseen events.
 
 \subsection{Relief or drainage structure?}
-Which terrain matters depends on the training set. Trained on the 11 Sen1Floods11 events and tested on 79
-external floods, HAND beats DEM and slope at the event level (clearly for all water, with a flood CI close to zero); DEM and slope recover only a quarter
-of its flood gain, although they recover more on the largest events. Trained on 20 GEOID-Flood events,
-DEM and slope recover most of HAND's gain and HAND's margin over them is not significant. A plausible
-reading is that a model trained on few, narrow events and applied far from them needs the explicit
-drainage structure that HAND encodes, while a model trained on more varied events can infer where water
-collects from relief alone; we did not test this directly. In neither setting does a map of known water
-substitute for terrain.
+In the transfer from 11 Sen1Floods11 events to 79 external floods, the model uses what HAND says about the
+place: the gain disappears when HAND is shifted by 500\,m, blurred or taken from another flood, and a model
+trained on mismatched HAND gains nothing. DEM and slope recover only a quarter of the event-level flood
+gain, although more on the largest events. HAND is height relative to the local drainage network, which
+relief and slope only approximate; the perturbation results show that its exact position and its detail
+below a few hundred metres matter. Trained on 20 GEOID-Flood events, however, DEM and slope recover most of
+HAND's gain. A plausible reading is that a model trained on few, narrow events and applied far from them
+needs the drainage-relative height that HAND encodes, while a model trained on more varied events can infer
+where water collects from relief; we did not test this directly. In neither setting does a map of known
+water substitute for terrain.
 
 \subsection{Why the physics losses fail}
-The constraints the losses encode are already satisfied by trained models: monotonicity is violated on
-fewer than 0.5\% of pixel pairs, and almost nothing is predicted above 15\,m HAND. Forcing the loss to act
-at HAND's 30-m resolution cuts the remaining violations by a third to a half without changing IoU; the few violations left
-are not where the errors are. A constraint the data already teach cannot add information. In this
-setting, physics priors help as inputs, where they add information that the SAR does not carry, not as
-penalties on outputs the model already gets right.
+Trained models already satisfy the constraints the tested losses encode (monotonicity is violated on
+fewer than 0.5\% of pixel pairs; almost nothing is predicted above 15\,m HAND), and enforcing them harder
+removes violations that are not where the errors are. A constraint the data already teach adds no
+information; here the prior helps as an input, which carries information the SAR does not.
 
 \subsection{When HAND hurts}
 HAND fails on flat terrain where everything is near drainage (Somalia, EMSR419) and on water bodies the DEM
@@ -45,16 +45,6 @@ drainage network misses (the Swedish lakes). Neither pre-registered remedy works
 removes gains, because HAND helps on flat tiles on average, and HAND dropout shrinks the model toward SAR
 only, trading gains for losses. The losses sit in a few events and tiles that terrain statistics do not
 pick out in advance; a fix would need to know when the DEM's drainage network is wrong.
-
-\subsection{Practical reading}
-For a model trained on few labelled floods (here, 11 events), HAND is a cheap gain on new events, and
-more than relief alone; with 20 GEOID-Flood training events DEM plus slope gives most of it. A fine-tuned
-foundation model gains from HAND about as much as the U-Net in event-mean flood IoU, and without HAND it
-does not catch up with a small U-Net that has it. The gain depends on which events are
-in the training set and was not detectable at 10 events. Whether it persists at intermediate event counts
-is not settled by our data.
-For a model trained on many events, the benefit for single-image flood extent is small. For the SAR model
-itself, more \emph{events} help; more tiles from events already labelled do not.
 
 \subsection{Limitations}
 Most experiments use U-Nets (plain and ResNet-34); TerraMind was run with one learning rate, tuned on one

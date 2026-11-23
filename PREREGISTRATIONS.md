@@ -29,7 +29,7 @@ flood gains of the new e40 and e159 draws were seen before the last e20 draw fin
 be resubmitted). The test, events and draws had been committed beforehand and were not changed.
 
 **Outcome: not supported.** Contrast +0.0025 [−0.0072, +0.0130], one-sided Wilcoxon p = 0.367 (flood,
-38 unseen events); all water p = 0.368. Paper Section V-E, Table S4.
+38 unseen events); all water p = 0.368. Paper Section V-F, Table S4.
 
 ## 2. Relief gate: ignore HAND on flat ground
 
@@ -43,7 +43,7 @@ Fixed 2026-11-21 (commit 8b9a359), before any gated outcome was computed.
 > threshold sweep is exploratory only. Script: `scripts/hand_gate.py`.
 
 **Outcome: not supported.** Gated − ungated, protocol, unseen activations: 20 events −0.016
-[−0.047, +0.001]; 159 events −0.003 [−0.007, +0.001]. Paper Section V-G, Table S6.
+[−0.047, +0.001]; 159 events −0.003 [−0.007, +0.001]. Paper Section V-H, Table S6.
 
 ## 3. HAND modality dropout
 
@@ -62,7 +62,7 @@ Fixed 2026-11-21 before training (commit 6eb1e69); amendment before any result (
 > it on GEOID test (79 events) with the same outcomes.
 
 **Outcome: not supported.** Dropout raises no mean gain by more than +0.001; with 11 training events it
-removes part of HAND's gain (flood event-mean −0.008 [−0.016, −0.001]). Paper Section V-G, Table S7.
+removes part of HAND's gain (flood event-mean −0.008 [−0.016, −0.001]). Paper Section V-H, Table S7.
 
 ## 4. Terrain ablation on the Sen1Floods11 → GEOID-Flood transfer
 
@@ -79,7 +79,7 @@ Fixed 2026-11-21 before training (commit 58cc5ad).
 
 **Outcome: expectation not borne out.** DEM + slope recovers 26% of HAND's flood event-mean gain; HAND
 beats DEM + slope (flood +0.024 [+0.005, +0.048], all water +0.047 [+0.010, +0.099]). Paper Section V-C,
-Table III.
+Table IV.
 
 ## 5. TerraMind on the Sen1Floods11 → GEOID-Flood transfer
 
@@ -92,7 +92,7 @@ Fixed 2026-11-21 before training (commit 6f7aacf).
 
 **Outcome:** HAND gain on TerraMind, flood event-mean +0.031 [−0.000, +0.066] (U-Net +0.032), all water
 +0.040 [+0.004, +0.081] (U-Net +0.061); the U-Net with HAND beats TerraMind without it (flood +0.045
-[+0.022, +0.075]). Paper Section V-D, Table IV.
+[+0.022, +0.075]). Paper Section V-E, Table VI.
 
 ## 6. Does the gain need the right HAND for the place? (mechanism tests)
 
@@ -141,3 +141,18 @@ no result of #6 was produced or seen. The runs were moved out of the results tre
 import this repository's own `src/`, training rejects unknown data config keys and records the code path,
 and #6 was resubmitted unchanged. The stratified evaluation (#7) ran under the same environment, but it uses
 no perturbation and the two code versions are otherwise identical, so it is kept.
+
+## Outcomes of 6–8 (2026-11-23)
+
+**6. Supported (both hypotheses).** Event-mean Δ vs SAR only, flood / all water: correct HAND +0.032 / +0.061;
+shifted 100 m +0.025 / +0.031; shifted 500 m +0.003 [−0.011, +0.018] / −0.003; blurred σ = 250 m −0.001 /
+−0.034; another event's HAND at test −0.061 / −0.122; trained and tested with another event's HAND −0.005
+[−0.015, +0.006] / −0.001 [−0.021, +0.015]. Paper Section V-D, Table V, Table S9.
+
+**7.** Flood-only pooled gain is largest at 1–5 m HAND (≈ +0.09) and comes largely from fewer false alarms on
+higher ground (false-alarm rate 0.77% → 0.19% at 5–10 m, 0.62% → 0.02% above 20 m); gains in tree cover,
+grassland, cropland, built-up and bare ground, small or none in herbaceous wetland. Paper Section V-B,
+Table S8.
+
+**8.** Country-cluster CIs are essentially the event-level ones (U-Net flood +0.032 [+0.018, +0.051] vs
+[+0.018, +0.050]; all water +0.061 [+0.039, +0.089] vs [+0.040, +0.087]). Paper Section V-B.

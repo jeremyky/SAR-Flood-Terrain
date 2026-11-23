@@ -28,11 +28,10 @@ training events shows how the value of terrain changes as more floods are labell
 \begin{figure*}[t]
 \centering
 \includegraphics[width=\textwidth]{fig_overview.pdf}
-\caption{Overview, models trained on the 11 Sen1Floods11 events. (a) HAND gain in pooled water IoU on
-Sen1Floods11's official test split (tiles from the training events), on its Bolivia hold-out (an unseen
-event) and on 79 external GEOID-Flood events; dots: seeds, diamonds: means, bar: two-way 95\% CI.
-(b) Gain over the SAR-only U-Net in event-mean flood IoU on 77 GEOID-Flood events for terrain inputs and
-for TerraMind with and without HAND (two-way 95\% CIs over seeds and events).}
+\caption{Models trained on the 11 Sen1Floods11 events. (a) HAND gain in pooled water IoU on Sen1Floods11's
+test split (tiles from the training events), its Bolivia hold-out and 79 external GEOID-Flood events (dots:
+seeds; diamonds: means; bar: 95\% CI). (b) Gain over the SAR-only U-Net in event-mean flood IoU on 77
+GEOID-Flood events (two-way 95\% CIs).}
 \label{fig:overview}
 \end{figure*}
 
@@ -42,10 +41,11 @@ Three findings stand out (Fig.~\ref{fig:overview}):
 nothing from HAND on that dataset's official test split (+0.007 IoU), whose tiles come from the training
 events, but +0.128 on its held-out Bolivia event and +0.059 in pooled water IoU over 79 external floods
 (+0.061 in mean event IoU, improving 69 of them).
-\item \emph{The gain comes from HAND's drainage structure, not relief alone, and not from knowing where
-water was.} In this transfer, elevation and slope recover only a quarter of it at the event level; a permanent-water map
-recovers none of the flood-extent gain and, with many training events, teaches the model to look for
-water only where it already was.
+\item \emph{The gain needs correctly located, detailed height above drainage.} In this transfer, elevation
+and slope recover only a quarter of it at the event level; shifting HAND by 500\,m, blurring it, or
+swapping in another flood's HAND removes it, and a model trained with mismatched HAND gains nothing, so it
+is not a side effect of an extra input channel. A permanent-water map recovers none of the flood-extent
+gain and, with many training events, teaches the model to look for water only where it already was.
 \item \emph{A foundation model does not replace terrain.} HAND helps a fine-tuned 101\,M-parameter
 TerraMind~\cite{jakubik2025terramind} about as much as it helps a 7.8\,M-parameter U-Net in event-mean
 flood IoU (less for all water), and the small U-Net with HAND beats TerraMind without it.
@@ -54,7 +54,8 @@ flood IoU (less for all water), and the small U-Net with HAND beats TerraMind wi
 Around these, we contribute: an event-level comparison of three ways to use HAND, in which physics losses
 and masks do nothing, even when the loss is made to act at HAND's native resolution and measurably
 enforces its constraint; checks that the input gain survives threshold-free scoring and GEOID-Flood's own
-pre-/post-event protocol, and holds in event IoU for a second backbone; a learning curve over training events with an
+pre-/post-event protocol, holds in event IoU for a second backbone and under resampling by country, and
+where it occurs by height above drainage, slope and land cover; a learning curve over training events with an
 equal-tiles control, in which 500 tiles from all 159 GEOID-Flood events match all 8,712 and the flood-extent gain
 of HAND, clear when training on the 11 Sen1Floods11 events, is not detectable with 159 GEOID-Flood
 training events (a pre-registered test of a steady decline in between was null); a change-detection baseline, for which

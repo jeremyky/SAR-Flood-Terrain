@@ -1,21 +1,18 @@
 \begin{abstract}
-Flood segmentation models for Sentinel-1 radar must work on new floods, yet they are
-usually tested on images from the flood events they were trained on. We show that this hides the value
-of terrain. Trained on the 11 events of Sen1Floods11, a U-Net given height above nearest drainage as an
-extra input gains almost nothing on that dataset's own test split (+0.007 intersection over union), but
-+0.128 on its held-out Bolivia event and, on 79 external Copernicus emergency activations, rises from a
-mean event intersection over union of 0.574 to 0.635, improving 69. The gain survives
-threshold-free scoring and the benchmark's pre- and post-event protocol, and its all-water part grows with
-terrain relief. It comes from the drainage structure rather than relief alone: in this transfer,
-elevation and slope recover only a quarter of it at the event level, and a permanent-water map none of
-its flood-extent part. A fine-tuned 101-million-parameter foundation model gains about as much in mean
-flood accuracy from the drainage input, and without it loses to the 7.8-million-parameter U-Net that
-has it. As physics-based losses or masks, the same terrain has no
-measurable effect. Trained on 159 events, the flood-extent gain is no longer detectable,
-though a pre-registered test did not confirm a steady decline with event count; with 20 training events, a
-model given the pre-event image needs terrain less. Two pre-registered remedies for its failure cases fail.
-With few labelled floods, drainage-based terrain is a cheap gain that same-event evaluations
-miss.
+Flood segmentation models for Sentinel-1 radar must work on new floods, yet they are usually tested on
+images from the flood events they were trained on. We show that this hides the value of terrain. A U-Net
+trained on the 11 events of Sen1Floods11 gains almost nothing from height above nearest drainage on that
+dataset's own test split (+0.007 intersection over union) but +0.128 on its held-out Bolivia event. On 79
+external Copernicus emergency activations, the same input raises mean event intersection over union from
+0.574 to 0.635 for water and from 0.317 to 0.349 for flooded area, with water improved on 69 of the 79 events, and the
+gain holds without a threshold and under the benchmark's pre- and post-event protocol. It needs the right
+terrain for the place: elevation and slope recover only a quarter of it, its event-level gain vanishes when
+the drainage input is shifted by 500 m, blurred, or taken from another flood, and a model trained on such mismatched
+input gains nothing. A fine-tuned 101-million-parameter foundation model benefits about as much and,
+without the input, does not match the 7.8-million-parameter U-Net that has it. Used as a physics-based loss
+or a mask, the same terrain does nothing. Trained on 159 events, the flood-extent gain is no longer
+detectable, although a pre-registered test did not confirm a steady decline with the number of events. With
+few labelled floods, terrain is a cheap gain that same-event evaluations miss.
 \end{abstract}
 
 \begin{IEEEkeywords}

@@ -1,21 +1,16 @@
 \section{Conclusion}
 \label{sec:conclusion}
 
-Evaluated on flood events the model has never seen, terrain is useful to a SAR flood-segmentation network
-as an input, and the usual same-event evaluation hides it: trained on Sen1Floods11, a U-Net gains almost
-nothing from HAND on that dataset's own test split but improves on 69 of 79 external CEMS activations, more
-in varied terrain, and the gain survives threshold-free scoring and GEOID-Flood's own protocol. It comes
-mainly from HAND's drainage structure, not relief alone (although with 20 GEOID-Flood training events
-elevation and slope provide most of it), and not from knowing where water was: a permanent-water map
-provides none of the flood-extent gain and, with many training events, teaches a harmful shortcut. A
-fine-tuned foundation model benefits from HAND about as much in event-mean flood IoU, and without it does
-not match a small U-Net that has it. As a physics loss or a post-processing mask, HAND does nothing. With 159 training events the
-flood-extent gain is no longer detectable on activations absent from training, though a pre-registered
-test did not confirm a steady decline with event count, and with 20 training events a model given the pre-event image
-needs HAND less. The failure cases---flat terrain and water off the DEM's drainage network---resisted two
-pre-registered remedies. Finally, for the SAR model itself, 500 tiles from all 159 events match all 8,712 tiles,
-which suggests that labelling more floods is worth more than labelling more of the same flood; and
-evaluating on new floods is the only way to see what a prior like terrain is worth.
+Evaluated on flood events the model has never seen, terrain helps a SAR flood-segmentation network as an
+input, and the usual same-event evaluation hides it. Trained on Sen1Floods11, a U-Net gains almost nothing
+from HAND on that dataset's own test split but improves water mapping on 69 of 79 external CEMS
+activations, and flood mapping too, including under GEOID-Flood's own protocol. The gain needs correctly
+located, detailed height above drainage: shifted, blurred or borrowed HAND removes it, and relief alone
+recovers a quarter of it. A permanent-water map is no substitute, and a fine-tuned foundation model does not
+make HAND redundant. As a physics loss or mask, HAND does nothing. With 159 training events the
+flood-extent gain is no longer detectable, the shape of the decline in between is unresolved, and HAND's
+failure cases resisted two pre-registered remedies. For flood mapping with few labelled events, terrain is a
+cheap gain, and only evaluation on new floods shows it.
 
 \section*{Data and Code Availability}
 All data are public: Sen1Floods11~\cite{bonafilia2020sen1floods11}, GEOID-Flood~\cite{geoidflood} (CC BY

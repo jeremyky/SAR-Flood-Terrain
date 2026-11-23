@@ -248,4 +248,90 @@ gain over SAR only from +0.013 to +0.004. The Swedish tile (EMSR280\_1-0, Sen1Fl
 0.61, HAND 0.30, HAND with dropout 0.46 (3 seeds); the Swedish event, all water: 0.663 → 0.592
 (Sen1Floods11), 0.622 → 0.527 (20 events), 0.688 → 0.552 (159 events).
 
+\section*{Where the gain occurs}
+
+\begin{table}[h]
+\caption{HAND gain by pixel stratum for the Sen1Floods11-trained U-Net on GEOID-Flood test (3 seeds; flood: 77
+events, all water: 79). Pooled IoU SAR → SAR + HAND, pooled Δ with two-way 95\% CIs over seeds and the events
+with water in the stratum, and false-alarm rate FP/(FP + TN) in percent (identical in both label modes).}
+\centering
+\resizebox{\ifdim\width>\linewidth\linewidth\else\width\fi}{!}{%
+\begin{tabular}{@{}lccccc@{}}
+\toprule
+ & \multicolumn{3}{c}{Flooded water only} & \multicolumn{2}{c}{All water} \\
+Stratum & IoU & Δ pooled & False alarm (\%) & IoU & Δ pooled \\
+\midrule
+HAND 0-1 m & 0.475 → 0.514 & +0.040 [+0.004, +0.095] & 5.68 → 5.45 & 0.758 → 0.791 & +0.033 [+0.012, +0.063] \\
+HAND 1-2 m & 0.295 → 0.386 & +0.091 [+0.021, +0.154] & 2.68 → 1.35 & 0.360 → 0.446 & +0.087 [+0.025, +0.149] \\
+HAND 2-5 m & 0.263 → 0.353 & +0.089 [+0.030, +0.154] & 1.58 → 0.65 & 0.311 → 0.380 & +0.069 [+0.019, +0.130] \\
+HAND 5-10 m & 0.200 → 0.276 & +0.061 [+0.012, +0.100] & 0.77 → 0.19 & 0.231 → 0.272 & +0.041 [+0.007, +0.085] \\
+HAND 10-20 m & 0.089 → 0.127 & +0.026 [−0.033, +0.113] & 0.54 → 0.05 & 0.147 → 0.188 & +0.024 [−0.016, +0.078] \\
+HAND $>$20 m & 0.018 → 0.034 & +0.015 [−0.021, +0.083] & 0.62 → 0.02 & 0.033 → 0.049 & +0.014 [−0.022, +0.060] \\
+\midrule
+Slope 0-2\textdegree & 0.454 → 0.517 & +0.063 [+0.018, +0.116] & 4.59 → 3.78 & 0.748 → 0.796 & +0.048 [+0.019, +0.082] \\
+Slope 2-5\textdegree & 0.335 → 0.389 & +0.054 [+0.024, +0.087] & 1.29 → 0.85 & 0.427 → 0.485 & +0.058 [+0.034, +0.084] \\
+Slope 5-10\textdegree & 0.231 → 0.283 & +0.051 [+0.023, +0.071] & 0.76 → 0.43 & 0.346 → 0.402 & +0.056 [+0.030, +0.079] \\
+Slope 10-20\textdegree & 0.144 → 0.197 & +0.052 [+0.028, +0.078] & 0.43 → 0.17 & 0.247 → 0.294 & +0.047 [+0.023, +0.074] \\
+Slope $>$20\textdegree & 0.021 → 0.072 & +0.054 [+0.028, +0.081] & 1.38 → 0.14 & 0.065 → 0.174 & +0.109 [+0.069, +0.147] \\
+\midrule
+tree cover & 0.241 → 0.311 & +0.069 [+0.026, +0.112] & 0.67 → 0.29 & 0.258 → 0.311 & +0.053 [+0.024, +0.083] \\
+shrubland & 0.624 → 0.639 & +0.015 [−0.021, +0.073] & 0.27 → 0.18 & 0.680 → 0.694 & +0.014 [−0.017, +0.063] \\
+grassland & 0.538 → 0.581 & +0.043 [+0.023, +0.063] & 2.26 → 1.59 & 0.545 → 0.587 & +0.042 [+0.023, +0.063] \\
+cropland & 0.491 → 0.589 & +0.099 [+0.019, +0.193] & 2.45 → 1.98 & 0.500 → 0.597 & +0.097 [+0.019, +0.196] \\
+built-up & 0.089 → 0.117 & +0.028 [+0.005, +0.058] & 0.54 → 0.44 & 0.127 → 0.149 & +0.023 [+0.001, +0.048] \\
+bare & 0.088 → 0.118 & +0.031 [+0.019, +0.076] & 31.08 → 22.95 & 0.138 → 0.183 & +0.046 [+0.027, +0.099] \\
+herbaceous wetland & 0.450 → 0.452 & +0.002 [−0.019, +0.022] & 11.86 → 11.64 & 0.584 → 0.589 & +0.006 [−0.012, +0.021] \\
+permanent water & 0.227 → 0.225 & −0.002 [−0.009, +0.005] & 32.35 → 34.21 & 0.933 → 0.957 & +0.024 [+0.009, +0.051] \\
+\bottomrule
+\end{tabular}}
+\end{table}
+
+\section*{HAND perturbations (mechanism tests)}
+
+\begin{table}[h]
+\caption{Pre-registered HAND perturbations, Sen1Floods11-trained U-Net (3 seeds), all 77/79 GEOID-Flood test
+events: event-mean and pooled Δ with two-way 95\% CIs. Shifts are applied in both image axes; the blur is
+Gaussian with the given $\sigma$.}
+\centering
+\resizebox{\ifdim\width>\linewidth\linewidth\else\width\fi}{!}{%
+\begin{tabular}{@{}lcccc@{}}
+\toprule
+ & \multicolumn{2}{c}{Flooded water only} & \multicolumn{2}{c}{All water} \\
+Comparison & Event-mean Δ & Pooled Δ & Event-mean Δ & Pooled Δ \\
+\midrule
+Correct HAND − SAR only & +0.032 [+0.018, +0.050] & +0.074 [+0.037, +0.120] & +0.061 [+0.040, +0.086] & +0.059 [+0.032, +0.089] \\
+Shifted 100 m − SAR only & +0.025 [+0.012, +0.041] & +0.070 [+0.036, +0.113] & +0.031 [+0.012, +0.052] & +0.047 [+0.024, +0.072] \\
+Shifted 500 m − SAR only & +0.003 [−0.011, +0.018] & +0.050 [+0.020, +0.083] & −0.003 [−0.019, +0.013] & +0.014 [−0.013, +0.041] \\
+Blurred 250 m − SAR only & −0.001 [−0.015, +0.014] & +0.030 [+0.003, +0.053] & −0.034 [−0.058, −0.010] & −0.019 [−0.066, +0.021] \\
+Other event's HAND (test) − SAR only & −0.061 [−0.081, −0.041] & −0.033 [−0.086, +0.013] & −0.122 [−0.151, −0.095] & −0.095 [−0.151, −0.040] \\
+Trained with other events' HAND − SAR only & −0.005 [−0.015, +0.006] & −0.014 [−0.037, +0.024] & −0.001 [−0.021, +0.015] & −0.007 [−0.032, +0.021] \\
+\midrule
+Shifted 100 m − correct HAND & −0.007 [−0.014, −0.001] & −0.003 [−0.013, +0.007] & −0.030 [−0.042, −0.019] & −0.012 [−0.023, −0.004] \\
+Shifted 500 m − correct HAND & −0.029 [−0.044, −0.016] & −0.024 [−0.044, −0.008] & −0.063 [−0.085, −0.046] & −0.045 [−0.078, −0.023] \\
+Blurred 250 m − correct HAND & −0.033 [−0.050, −0.020] & −0.044 [−0.100, −0.004] & −0.094 [−0.121, −0.070] & −0.078 [−0.141, −0.033] \\
+Other event's HAND (test) − correct HAND & −0.093 [−0.119, −0.067] & −0.106 [−0.175, −0.048] & −0.182 [−0.220, −0.148] & −0.154 [−0.225, −0.094] \\
+Trained with other events' HAND − correct HAND & −0.037 [−0.053, −0.022] & −0.088 [−0.122, −0.047] & −0.062 [−0.084, −0.042] & −0.066 [−0.104, −0.034] \\
+\bottomrule
+\end{tabular}}
+\end{table}
+
+
+\section*{Additional figures}
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=0.7\textwidth]{fig_gain_vs_terrain.pdf}
+\caption{Per-event HAND gain of the Sen1Floods11-trained U-Net on GEOID-Flood test events against the
+event's median slope, for all water (left, 79 events) and flooded water only (right, 77 events). The
+all-water gain grows with terrain variation.}
+\end{figure}
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=0.7\textwidth]{fig_backbones.pdf}
+\caption{HAND gain under the GEOID-Flood protocol (pooled \iouf{}, two-way 95\% CIs) for the single-image
+U-Net, the change-detection U-Net and TerraMind, trained on 20 or 159 GEOID-Flood events; unseen test
+activations (left) and held-out 2026 events (right).}
+\end{figure}
+
 \end{document}

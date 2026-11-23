@@ -42,7 +42,7 @@ def main() -> None:
     rng = np.random.default_rng(0)
     tm = {x: compare(flood, x, "sar_only", rng, 4000) for x in ("fm_sar", "fm_sar_hand")}
 
-    fig, (a, b) = plt.subplots(1, 2, figsize=(7.16, 2.6), gridspec_kw={"width_ratios": [1, 1.1], "wspace": 0.9})
+    fig, (a, b) = plt.subplots(1, 2, figsize=(7.16, 2.3), gridspec_kw={"width_ratios": [1, 1.1], "wspace": 0.9})
 
     # (a) same-event test tiles vs unseen floods
     rows = [("Sen1Floods11 test\n(training events)", "test"),
