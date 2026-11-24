@@ -9,11 +9,9 @@ Tables and figures marked S are in the supplementary material.
 
 We first hold out each of the 11 Sen1Floods11 events in turn (Table~S1). The physics losses change
 held-out IoU by less than 0.007, because trained models already respect the constraints: without any
-physics loss they violate HAND monotonicity on only 0.2--0.5\% of pixel pairs. Between 10-m
-neighbours of the resampled 30-m HAND only 9\% of pairs qualify and the loss term stays near
-$3\cdot10^{-4}$; comparing pixels one HAND cell apart (27\% qualify), with no margin and weight 1 or 10, the
-loss engages and halves the violation rate at weight 10 (SAR + HAND 0.0022 → 0.0011), yet held-out IoU does
-not move (−0.001 \ci{−0.006}{+0.004}). The 15-m HAND post-mask changes held-out IoU by less than 0.003,
+physics loss they violate HAND monotonicity on only 0.2--0.5\% of pixel pairs, and a loss strong enough
+to halve that rate (pixels one HAND cell apart, weight 10) leaves held-out IoU unchanged (−0.001
+\ci{−0.006}{+0.004}; details with Table~S1). The 15-m HAND post-mask changes held-out IoU by less than 0.003,
 because these models rarely predict flood above 15\,m HAND.
 
 HAND as an input helps a little in LOEO: +0.025 \ci{+0.005}{+0.045} with 5 seeds (0.566 → 0.591; +0.018
@@ -100,9 +98,8 @@ strata (pre-registered as descriptive, seeds 0--2; Table~S8) show where, though 
 for flooded water it is largest at 1--5\,m HAND (pooled +0.09) and smaller at 0--1\,m (+0.04), where most
 flood water lies, because HAND removes false alarms on higher ground (0.62\% → 0.02\% above 20\,m); on
 slopes steeper than 20\textdegree, where radar shadow and layover mimic water, all-water IoU rises from
-0.065 to 0.174. The pooled flood gain is clear in tree cover, grassland, cropland, built-up and bare areas and
-unresolved in shrubland, herbaceous wetland and permanent water; in mangroves (seven events) HAND lowers
-all-water IoU. Fig.~\ref{fig:tiles} shows typical gains and the main
+0.065 to 0.174. By land cover, the pooled flood gain is unresolved only in shrubland, herbaceous wetland and permanent
+water, and in mangroves (seven events) HAND lowers all-water IoU. Fig.~\ref{fig:tiles} shows typical gains and the main
 failure (Section~\ref{sec:failures}).
 
 \begin{figure*}[t]
@@ -208,14 +205,17 @@ TerraMesh~\cite{terramesh}, which includes Sentinel-1 GRD) with the U-Net decode
 Sen1Floods11 configuration in TerraTorch~\cite{terratorch} (encoder layers 2, 5, 8 and 11; 101\,M
 parameters in total, against 7.8\,M for our U-Net). VV and VH enter through the pretrained Sentinel-1 patch
 embedding, standardized with TerraMind's own statistics; HAND enters as an extra band whose patch weights
-start from random initialization, so the pretrained weights for VV and VH are unchanged. The learning
-rate ($5\cdot10^{-5}$, from $2\cdot10^{-5}$, $5\cdot10^{-5}$ and $10^{-4}$) was chosen on the validation IoU
-of the SAR-only model on one 20-event GEOID-Flood draw and reused unchanged for all TerraMind runs; all
-other settings, data and step budgets equal the U-Net runs.
+start from random initialization, so the pretrained weights for VV and VH are unchanged. Each variant's
+learning rate was chosen from $10^{-5}$, $2\cdot10^{-5}$, $5\cdot10^{-5}$, $10^{-4}$ and $2\cdot10^{-4}$ by
+its mean Sen1Floods11 validation IoU over three seeds (pre-registered): $10^{-4}$ for both, narrowly ahead
+of $5\cdot10^{-5}$ (0.661 vs.\ 0.660 without HAND, 0.657 vs.\ 0.656 with). All other settings, data and
+step budgets equal the U-Net runs. With GEOID-Flood training, TerraMind uses $5\cdot10^{-5}$, chosen on the
+validation IoU of one 20-event draw.
 
 \begin{table}[t]
-\caption{TerraMind ± HAND trained on the 11 Sen1Floods11 events (pre-registered; 3 seeds; all 77/79
-GEOID-Flood test events; two-way 95\% CIs). TM: TerraMind-1.0-base, fine-tuned.}
+\caption{TerraMind ± HAND trained on the 11 Sen1Floods11 events (pre-registered; learning rate $10^{-4}$,
+selected on validation; 3 seeds; all 77/79 GEOID-Flood test events; two-way 95\% CIs). TM: TerraMind-1.0-base,
+fine-tuned. Every learning rate: Table~S12.}
 \label{tab:fm_s1}
 \centering
 \resizebox{\columnwidth}{!}{%
@@ -223,27 +223,25 @@ GEOID-Flood test events; two-way 95\% CIs). TM: TerraMind-1.0-base, fine-tuned.}
 \toprule
 Comparison & Flood, event-mean Δ & All water, event-mean Δ & Protocol pooled Δ \\
 \midrule
-TM + HAND − TM & +0.031 [−0.000, +0.066] & +0.040 [+0.004, +0.081] & +0.026 [−0.009, +0.069] \\
-TM − U-Net (SAR only) & −0.013 [−0.046, +0.018] & +0.009 [−0.030, +0.048] & +0.038 [−0.017, +0.094] \\
-U-Net + HAND − TM & +0.045 [+0.022, +0.075] & +0.052 [+0.024, +0.087] & +0.034 [+0.005, +0.069] \\
+TM + HAND − TM & +0.057 [+0.027, +0.089] & +0.073 [+0.030, +0.115] & +0.076 [+0.030, +0.125] \\
+TM − U-Net (SAR only) & −0.030 [−0.071, +0.014] & −0.015 [−0.070, +0.050] & +0.001 [−0.064, +0.079] \\
+U-Net + HAND − TM & +0.062 [+0.027, +0.100] & +0.075 [+0.024, +0.123] & +0.071 [+0.017, +0.126] \\
 \bottomrule
 \end{tabular}}
 \end{table}
 
-In the main transfer setting (Table~\ref{tab:fm_s1}, Fig.~\ref{fig:overview}b), HAND helps TerraMind about
-as much as it helps the U-Net in flood extent (+0.031 vs.\ +0.032 event-mean, the CI just reaching zero;
-+0.036 \ci{+0.006}{+0.075} under the protocol, event-mean) and somewhat less for all water (+0.040 vs.\
-+0.061). Without HAND, TerraMind is no better than the plain U-Net, and the 7.8\,M-parameter U-Net with HAND
-beats it in all three measures of Table~\ref{tab:fm_s1} (flood +0.045 \ci{+0.022}{+0.075}, all water +0.052
-\ci{+0.024}{+0.087}). With few training events, pretraining does not substitute for terrain in this configuration. These
-comparisons use one fine-tuning setup (base model, U-Net decoder, one learning rate, HAND as an extra
-patch-embedded band); more tuning or other fusion designs could change the ranking.
+In the main transfer setting (Table~\ref{tab:fm_s1}, Fig.~\ref{fig:overview}b), HAND helps TerraMind by
++0.057 \ci{+0.027}{+0.089} in flood event-mean IoU (68 of 77 events; the U-Net gains +0.032) and by +0.073
+for all water. Without HAND, TerraMind is no better than the plain U-Net, and the 7.8\,M-parameter U-Net with
+HAND beats it in all three measures (flood +0.062 \ci{+0.027}{+0.100}). The learning rate changes the size of
+TerraMind's HAND gain but not its sign or the ranking (Table~S12): at the four other rates TerraMind's flood HAND gain is smaller (+0.016 to +0.031)
+but positive, with a CI above zero at two, and the U-Net with HAND beats TerraMind without it at every rate
+and in every measure (flood +0.037 to +0.062). With few training events, pretraining does not substitute for
+terrain in this configuration; other decoders, model sizes or fusion designs could change the ranking.
 
-With GEOID-Flood training (Table~S3, Fig.~S3) the picture is similar: at 20 events HAND helps TerraMind
-about as much as the U-Net in flood IoU (+0.031 vs.\ +0.032; both CIs only just exclude zero), less under
-the protocol (+0.040 vs.\ +0.066), and not at 159 events. Our GEOID-trained TerraMind scores 0.491 under the
-protocol on all 77 test events, slightly above GEOID-Flood's own TerraMind-B (0.478 frozen, 0.479
-fine-tuned) and best single-image Sentinel-1 model (0.484).
+With GEOID-Flood training (Table~S3, Fig.~S3), HAND helps TerraMind at 20 events about as much as the
+U-Net in flood IoU (+0.031 vs.\ +0.032; both CIs only just exclude zero) and not at 159. Our GEOID-trained
+TerraMind scores 0.491 under the protocol, slightly above GEOID-Flood's own TerraMind-B (0.478--0.479).
 
 
 \subsection{With 159 training events, HAND's flood-extent gain is not detectable}
@@ -329,7 +327,10 @@ Exploratory, the flood-extent HAND gain looked largest at 20--40 events and gone
 CI only just excludes zero (+0.032 \ci{+0.004}{+0.065}), at 40 the pooled CI excludes zero but the
 event-mean one does not, and at 80 both include zero. Which events are in a small training set matters:
 at 20 events the per-draw flood gain ranges from −0.008 to +0.069. With HAND, 20 events approach the pooled
-flood IoU that SAR-only reaches with 80--159 (0.530 vs.\ 0.539--0.549).
+flood IoU that SAR-only reaches with 80--159 (0.530 vs.\ 0.539--0.549). Trained instead for 30 epochs, as
+the 159-event models (pre-registered; Table~S13), the 10-, 20- and 40-event subsets gain at least as much
+(flood +0.024, +0.034, +0.023, CIs above zero, two only just), so these gains do not come from passing over
+small training sets hundreds of times.
 
 \emph{The pre-registered confirmation failed.} To test the decline, we fixed a contrast before training
 new models: on three new, independent equal-tiles draws (500 tiles) at each of 20, 40 and 159 events, the

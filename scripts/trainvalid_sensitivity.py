@@ -59,7 +59,7 @@ def confirmation(d: Path) -> tuple:
 
 
 ROWS = [  # label, function, args
-    ("159 events (Table~\\ref{tab:geoid}), flooded, event-mean", curve, ("lc_unseen_geoid_test_flood.csv", 159)),
+    ("159 events (Table~VII), flooded, event-mean", curve, ("lc_unseen_geoid_test_flood.csv", 159)),
     ("159 events, all water, event-mean", curve, ("lc_unseen_geoid_test.csv", 159)),
     ("159 events, flooded, pooled", curve, ("lc_unseen_geoid_test_flood.csv", 159, "pooled")),
     ("159 events, protocol pooled", proto, ("proto_geoid_test.csv", "sar_hand - sar_only")),

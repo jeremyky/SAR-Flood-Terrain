@@ -9,6 +9,9 @@ seeds x events; each comparison uses the seeds both variants have.
     python scripts/revision_transfer_report.py headline --runs $S/runs/all --out $S/reports/transfer_headline.csv
     python scripts/revision_transfer_report.py input-vs-mask --runs $S/runs/all \
         --out $S/reports/transfer_input_vs_mask_exploratory.csv   # exploratory, not pre-registered
+    python scripts/revision_transfer_report.py fm-lr-all --runs $S/runs/all \
+        --out $S/reports/transfer_fm_lr_all_exploratory.csv   # fm-lr rows unchanged + exploratory: all three
+                                                              # Table VI comparisons at every learning rate
 """
 from __future__ import annotations
 
@@ -57,7 +60,7 @@ def val_iou(runs: Path, variant: str) -> list[float]:
 
 def main() -> None:
     p = argparse.ArgumentParser()
-    p.add_argument("what", choices=["losses", "masks", "fm-lr", "headline", "input-vs-mask"])
+    p.add_argument("what", choices=["losses", "masks", "fm-lr", "fm-lr-all", "headline", "input-vs-mask"])
     p.add_argument("--runs", type=Path, required=True)
     p.add_argument("--boot", type=int, default=4000)
     p.add_argument("--out", type=Path)
@@ -75,7 +78,7 @@ def main() -> None:
         pairs = [(f"sar_only+mask{t}", "sar_only") for t in MASKS] + [(f"sar_hand+mask{t}", "sar_hand") for t in MASKS]
         pairs += [("sar_hand", "sar_only")]
         out = table(args.runs, pairs, masks=MASKS, boot=args.boot)
-    else:
+    else:  # fm-lr, fm-lr-all
         sel = {}
         print("Sen1Floods11 validation IoU (best checkpoint), mean over seeds, by learning rate:")
         for base in ("fm_sar", "fm_sar_hand"):
@@ -88,6 +91,10 @@ def main() -> None:
         pairs = [(h, a), (a, "sar_only"), ("sar_hand", a)]
         pairs += [(f"fm_sar_hand{s}", f"fm_sar{s}") for s in FM_LRS.values() if f"fm_sar{s}" != a or f"fm_sar_hand{s}" != h]
         out = table(args.runs, pairs, boot=args.boot)
+        if args.what == "fm-lr-all":  # exploratory: the other two comparisons at the other learning rates
+            extra = [p for s in FM_LRS.values() if f"fm_sar{s}" != a
+                     for p in [(f"fm_sar{s}", "sar_only"), ("sar_hand", f"fm_sar{s}")]]
+            out = pd.concat([out, table(args.runs, extra, boot=args.boot)], ignore_index=True)
     print(f"{args.runs}: all GEOID test events; two-way 95% CIs (seeds x events)")
     print(out.round(4).to_string(index=False))
     if args.out:

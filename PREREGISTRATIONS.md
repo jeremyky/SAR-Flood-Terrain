@@ -327,3 +327,31 @@ loss runs waited on full GPU partitions and were cancelled; the 12 runs were sco
 `eval_external.py` and `eval_geoid_protocol.py eval`. On 13 test tiles from 8 events it reproduced both
 drivers' outputs byte for byte on the same GPU; between this GPU and an A100 the protocol confusion counts on
 those tiles differ by fewer than 30 pixels.
+
+**12. Claim kept.** Mean Sen1Floods11 validation IoU over seeds 0-2 (`metrics.json` `best_val_iou`): TerraMind
+1e-5 0.6294, 2e-5 0.6382, 5e-5 0.6601, 1e-4 0.6607, 2e-4 0.6517; TerraMind + HAND 0.6127, 0.6256, 0.6561,
+0.6574, 0.6534; 1e-4 is selected for both, narrowly ahead of 5e-5. At the selected rates (`reports/transfer_fm_lr.csv`):
+U-Net + HAND − TM, flooded event-mean +0.062 [+0.027, +0.100], 62/77 improved; all water +0.075 [+0.024, +0.123];
+protocol pooled +0.071 [+0.017, +0.126]. Its CI stays above zero, so the claim that the small U-Net with HAND beats
+TerraMind is kept. TM + HAND − TM: flooded +0.057 [+0.027, +0.089], 68/77; all water +0.073 [+0.030, +0.115];
+protocol pooled +0.076 [+0.030, +0.125] (at 5e-5, the draft's Table VI: +0.031 [−0.000, +0.066], +0.040, +0.026).
+TM − U-Net: flooded −0.030 [−0.071, +0.014]. TM + HAND − TM, flooded event-mean, at the other rates: 1e-5 +0.016
+[−0.002, +0.035], 2e-5 +0.018 [+0.005, +0.033], 5e-5 +0.031 [−0.000, +0.066], 2e-4 +0.029 [+0.013, +0.047].
+The paper's statement that HAND helps TerraMind "about as much as" the U-Net is replaced: at the selected rate
+the gain is larger than the U-Net's (+0.032, not tested), at the four other rates smaller. Exploratory (not
+registered): the other two comparisons at every rate (`revision_transfer_report.py fm-lr-all`,
+`reports/transfer_fm_lr_all_exploratory.csv`): U-Net + HAND − TM has a CI above zero at every rate in every
+measure (flooded +0.037 to +0.062); TM − U-Net, flooded, is −0.005 to −0.030, with a CI below zero at 1e-5.
+Paper Section V-E, Table VI, Fig. 1b, Table S12.
+
+**14.** Retrained for 30 epochs (draws 0-4, seed = draw; `runs/geoid_lc_ep30`, `scripts/learning_curve_report.py
+--curve-dir geoid_lc_ep30 --full-dir ""`; `reports/lc_ep30_unseen_{train,train_valid}_geoid_test{,_flood}.csv`).
+Flooded only, unseen activations by train, event-mean (two-way CI) and pooled HAND gain, 30 epochs vs. the fixed
+step budget: 10 events +0.024 [+0.003, +0.043] vs. +0.013 [−0.002, +0.028], pooled +0.071 vs. +0.039; 20 events
++0.034 [+0.011, +0.063] vs. +0.032 [+0.004, +0.065], pooled +0.057 vs. +0.062; 40 events +0.023 [+0.002,
++0.046] vs. +0.016 [−0.004, +0.038], pooled +0.053 vs. +0.048; 159 events (30 epochs) −0.001 [−0.019, +0.016].
+All water: +0.042, +0.062, +0.054 (fixed steps +0.050, +0.072, +0.044). SAR-only flooded event-mean IoU is a
+little lower at 30 epochs (0.335, 0.330, 0.352 vs. 0.351, 0.335, 0.365). Unseen by train and validation (37/38
+events): event-mean gains change by at most 0.0017, pooled by at most 0.0055, no CI changes side of zero.
+Descriptive: the HAND gain at 10-40 events is not an artefact of the fixed step budget. Paper Section V-F, Table
+S13.

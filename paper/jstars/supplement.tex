@@ -62,7 +62,11 @@ ResNet-34: + HAND input & 0.600 & +0.017 [−0.001, +0.033] & 0.12 & 8/11 \\
 \end{table}
 
 With 11 events, which events gain is not reproducible across backbones (Spearman $\rho = 0.07$ between
-the U-Net and ResNet-34 per-event gains).
+the U-Net and ResNet-34 per-event gains). \emph{Why the losses do not engage.} Between 10-m neighbours of
+the resampled 30-m HAND only 9\% of pixel pairs differ by at least 1\,m and the monotonicity term stays near
+$3\cdot10^{-4}$; comparing pixels one HAND cell apart (27\% qualify), with no margin and weight 1 or 10, the
+loss engages and halves the violation rate at weight 10 (SAR + HAND 0.0022 → 0.0011), yet held-out IoU does
+not move.
 
 \section*{Terrain and permanent-water ablation with GEOID-Flood training}
 
@@ -406,6 +410,86 @@ nothing. Of the losses, only monotonicity at a 30-m stride and weight 10 improve
 CI above zero, in flooded-water IoU (on 53 of 77 events), by about as much as a 20-m mask; the stride-1
 monotonicity loss lowers all-water IoU (on 55 of 79 events).
 
+\section*{TerraMind learning rate}
+
+\begin{table}[H]
+\caption{TerraMind (TM) ± HAND trained on the 11 Sen1Floods11 events at five learning rates (pre-registered
+\#12; 3 seeds; all 77/79 GEOID-Flood test events; two-way 95\% CIs; U-Net: seeds 0--2). Val.: mean
+Sen1Floods11 validation IoU of TM / TM + HAND, which selected $10^{-4}$ (Table~VI). The TM + HAND − TM rows
+at the other rates were pre-registered; the other rows there are exploratory. $5\cdot10^{-5}$ is the rate
+of the earlier draft.}
+\label{tab:fmlr}
+\centering
+\resizebox{\ifdim\width>\linewidth\linewidth\else\width\fi}{!}{%
+\begin{tabular}{@{}llccc@{}}
+\toprule
+Learning rate (val.) & Comparison & Flood, event-mean Δ & All water, event-mean Δ & Protocol pooled Δ \\
+\midrule
+$10^{-5}$ (0.629 / 0.613) & TM + HAND − TM & +0.016 [−0.002, +0.035] & +0.017 [+0.001, +0.038] & +0.016 [−0.003, +0.037] \\
+ & TM − U-Net (SAR only) & −0.029 [−0.055, −0.004] & −0.004 [−0.035, +0.029] & +0.017 [−0.029, +0.065] \\
+ & U-Net + HAND − TM & +0.062 [+0.041, +0.084] & +0.065 [+0.044, +0.086] & +0.056 [+0.028, +0.087] \\
+\midrule
+$2\cdot10^{-5}$ (0.638 / 0.626) & TM + HAND − TM & +0.018 [+0.005, +0.033] & +0.018 [+0.003, +0.038] & +0.018 [−0.005, +0.042] \\
+ & TM − U-Net (SAR only) & −0.010 [−0.032, +0.011] & +0.016 [−0.012, +0.044] & +0.039 [−0.009, +0.098] \\
+ & U-Net + HAND − TM & +0.043 [+0.024, +0.062] & +0.044 [+0.023, +0.068] & +0.033 [+0.008, +0.061] \\
+\midrule
+$5\cdot10^{-5}$ (0.660 / 0.656) & TM + HAND − TM & +0.031 [−0.000, +0.066] & +0.040 [+0.005, +0.080] & +0.026 [−0.010, +0.069] \\
+ & TM − U-Net (SAR only) & −0.013 [−0.046, +0.017] & +0.009 [−0.033, +0.048] & +0.038 [−0.019, +0.098] \\
+ & U-Net + HAND − TM & +0.045 [+0.022, +0.076] & +0.052 [+0.024, +0.087] & +0.034 [+0.004, +0.068] \\
+\midrule
+$10^{-4}$ (0.661 / 0.657) & TM + HAND − TM & +0.057 [+0.027, +0.089] & +0.073 [+0.030, +0.115] & +0.076 [+0.030, +0.125] \\
+ & TM − U-Net (SAR only) & −0.030 [−0.071, +0.014] & −0.015 [−0.070, +0.050] & +0.001 [−0.064, +0.079] \\
+ & U-Net + HAND − TM & +0.062 [+0.027, +0.100] & +0.075 [+0.024, +0.123] & +0.071 [+0.017, +0.126] \\
+\midrule
+$2\cdot10^{-4}$ (0.652 / 0.653) & TM + HAND − TM & +0.029 [+0.013, +0.047] & +0.048 [+0.029, +0.071] & +0.041 [+0.008, +0.079] \\
+ & TM − U-Net (SAR only) & −0.005 [−0.023, +0.013] & +0.008 [−0.011, +0.028] & +0.026 [−0.006, +0.059] \\
+ & U-Net + HAND − TM & +0.037 [+0.021, +0.054] & +0.052 [+0.036, +0.072] & +0.046 [+0.019, +0.081] \\
+\bottomrule
+\end{tabular}}
+\end{table}
+
+The validation IoU barely separates $5\cdot10^{-5}$ and $10^{-4}$, yet TerraMind's HAND gain on the external
+events nearly doubles between them (+0.031 to +0.057); at every rate it is positive and the U-Net with HAND beats TerraMind without
+it with a CI above zero in every measure. TerraMind without HAND never beats the SAR-only U-Net in
+event-mean flood IoU and is worse at $10^{-5}$.
+
+\section*{Learning curve at a fixed number of epochs}
+
+The learning curve fixes the optimizer steps (32,670), so a 10-event subset is passed over 360--1,020 times
+and a 159-event one 30 times. Table~\ref{tab:ep30} retrains the 10-, 20- and 40-event subsets (same 5 draws,
+seed = draw) for 30 epochs, as the 159-event models (pre-registered \#14; descriptive). With 12--34 times
+fewer steps at 10 events their SAR-only IoU is slightly lower, and the flood HAND gain is at least as large
+as with the step budget at every size, with CIs above zero, against −0.001 at 159 events. The larger gains
+with few events are therefore not an artefact of passing over small training sets many times. With unseen
+meaning unseen by train and validation (37/38 events), the event-mean gains change by at most 0.002 and the
+pooled ones by at most 0.006, and no CI changes side of zero.
+
+\begin{table}[H]
+\caption{HAND gain with a fixed step budget (Table~VIII; all water: text after Table~S5)
+and with 30 epochs (pre-registered \#14), GEOID-Flood training, unseen activations (38 flood / 39 all-water
+events), 5 draws; event-mean IoU SAR → + HAND and Δ with two-way 95\% CIs; pooled Δ at 30 epochs.}
+\label{tab:ep30}
+\centering
+\resizebox{\ifdim\width>\linewidth\linewidth\else\width\fi}{!}{%
+\begin{tabular}{@{}llccccc@{}}
+\toprule
+& & \multicolumn{2}{c}{Fixed steps (32,670)} & \multicolumn{3}{c}{30 epochs} \\
+\cmidrule(lr){3-4}\cmidrule(lr){5-7}
+Labels & Events & IoU & Δ & IoU & Δ & Pooled Δ \\
+\midrule
+Flood & 10 & 0.351 → 0.364 & +0.013 [−0.002, +0.028] & 0.335 → 0.359 & +0.024 [+0.003, +0.043] & +0.071 [+0.025, +0.121] \\
+ & 20 & 0.335 → 0.367 & +0.032 [+0.004, +0.065] & 0.330 → 0.365 & +0.034 [+0.011, +0.063] & +0.057 [+0.024, +0.097] \\
+ & 40 & 0.365 → 0.381 & +0.016 [−0.004, +0.038] & 0.352 → 0.375 & +0.023 [+0.002, +0.046] & +0.053 [+0.013, +0.104] \\
+ & 159 & \multicolumn{2}{c}{(30 epochs)} & 0.381 → 0.380 & −0.001 [−0.019, +0.016] & +0.011 [−0.017, +0.037] \\
+\midrule
+All water & 10 & 0.576 → 0.627 & +0.050 [+0.021, +0.092] & 0.566 → 0.608 & +0.042 [+0.014, +0.071] & +0.055 [+0.021, +0.095] \\
+ & 20 & 0.543 → 0.616 & +0.072 [+0.026, +0.124] & 0.554 → 0.616 & +0.062 [+0.030, +0.098] & +0.056 [+0.022, +0.101] \\
+ & 40 & 0.601 → 0.645 & +0.044 [+0.015, +0.076] & 0.578 → 0.632 & +0.054 [+0.023, +0.087] & +0.053 [+0.013, +0.101] \\
+ & 159 & \multicolumn{2}{c}{(30 epochs)} & 0.625 → 0.648 & +0.023 [+0.004, +0.045] & +0.050 [+0.003, +0.118] \\
+\bottomrule
+\end{tabular}}
+\end{table}
+
 \section*{Unseen by training and validation}
 
 GEOID-Flood-trained models select their checkpoint on GEOID-Flood's validation split, and 15 test activations also
@@ -425,7 +509,7 @@ zero already had a bound within 0.001 of it (pre-registered \#11; \texttt{report
 \toprule
 Result & Unseen by train (38/39) & Unseen by train and validation (37/38) \\
 \midrule
-159 events (Table~\ref{tab:geoid}), flooded, event-mean & −0.001 [−0.019, +0.016] & −0.001 [−0.019, +0.018] \\
+159 events (Table~VII), flooded, event-mean & −0.001 [−0.019, +0.016] & −0.001 [−0.019, +0.018] \\
 159 events, all water, event-mean & +0.023 [+0.004, +0.045] & +0.024 [+0.004, +0.045] \\
 159 events, flooded, pooled & +0.011 [−0.017, +0.037] & +0.012 [−0.018, +0.040] \\
 159 events, protocol pooled & +0.021 [−0.001, +0.043] & +0.022 [−0.001, +0.046] \\

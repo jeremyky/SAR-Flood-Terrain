@@ -118,7 +118,7 @@ def main() -> None:
         ax.grid(axis="y", visible=False)
         ax.tick_params(axis="y", length=0)
     a.set_xlim(-0.05, 0.24)
-    b.set_xlim(-0.06, 0.10)
+    b.set_xlim(-0.08, 0.10)
     fig.suptitle("Models trained on the 11 Sen1Floods11 events", x=0.01, ha="left", fontsize=10)
     fig.subplots_adjust(left=0.17, right=0.97, top=0.84, bottom=0.25)
     save(fig, args.out)

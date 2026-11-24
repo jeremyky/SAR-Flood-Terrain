@@ -20,9 +20,10 @@ from GEOID-Flood:
 - **It is HAND's drainage structure, not relief alone, and not known water.** Elevation and slope recover
   a quarter of the event-level flood gain; HAND shifted by 500 m or taken from another flood, and a
   permanent-water map, recover none of it.
-- **With few training events, a foundation model does not replace terrain.** HAND helps a fine-tuned
-  TerraMind (101 M parameters) about as much as a 7.8 M-parameter U-Net in event-mean flood IoU, and the
-  small U-Net with HAND beats TerraMind without it.
+- **With few training events, a foundation model does not replace terrain.** HAND also helps a fine-tuned
+  TerraMind (101 M parameters): +0.057 in event-mean flood IoU at the learning rate selected on
+  validation, +0.016 to +0.031 at four others. A 7.8 M-parameter U-Net with HAND beats TerraMind without
+  it at all five learning rates.
 
 Also: as a post-processing mask HAND recovers about a third of the input gain on new floods, and as a
 physics loss about a quarter of the flood gain (one of four variants); within Sen1Floods11 neither does

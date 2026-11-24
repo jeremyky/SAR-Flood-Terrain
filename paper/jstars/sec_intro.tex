@@ -33,7 +33,8 @@ Sen1Floods11's 90 official test tiles, scored by models trained on other tiles o
 leave-one-event-out models that held each tile's event out; on Sen1Floods11's Bolivia hold-out; and on 79
 external GEOID-Flood events. Dots: seeds (5 per setting); diamonds: means; bars: two-way 95\% CIs over seeds
 and events (none for Bolivia, a single event). (b) Gain over the SAR-only U-Net in event-mean flood IoU on
-77 GEOID-Flood events, two-way 95\% CIs (+ HAND: 5 seeds; other rows: 3).}
+77 GEOID-Flood events, two-way 95\% CIs (+ HAND: 5 seeds; other rows: 3; TerraMind at the learning rate
+selected on validation).}
 \label{fig:overview}
 \end{figure*}
 
@@ -51,10 +52,9 @@ blurring it, or swapping in another flood's HAND removes the event-level gain, a
 is not a side effect of an extra input channel. A permanent-water map recovers none of the flood-extent
 gain and, with many training events, appears to teach the model to look for water only where it already was.
 \item \emph{With few training events, a foundation model does not replace terrain.}
-% PENDING-12: revisit after the TerraMind learning-rate grid
-HAND helps a fine-tuned 101\,M-parameter TerraMind~\cite{jakubik2025terramind} about as much as a
-7.8\,M-parameter U-Net in event-mean flood IoU (with a CI reaching zero), and the small U-Net with HAND
-beats TerraMind without it; with 159 GEOID-Flood training events it no longer does.
+HAND also helps a fine-tuned 101\,M-parameter TerraMind~\cite{jakubik2025terramind} (flood IoU +0.057 at
+the learning rate selected on validation, positive at all five rates tried), and a 7.8\,M-parameter U-Net
+with HAND beats TerraMind without it at every rate; with 159 GEOID-Flood training events it no longer does.
 \end{enumerate}
 
 We also find that HAND as a training loss does nothing within Sen1Floods11, even when the loss
