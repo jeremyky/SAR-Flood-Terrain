@@ -22,12 +22,17 @@ pipeline that uses HAND as a hard gate in a Bayesian fusion; on a single event (
 removing HAND costs 0.052 IoU.
 
 \subsection{Terrain on held-out events}
-Two recent projects hold out Sen1Floods11 events. An unreviewed project~\cite{pranav2026loeo} runs
-leave-one-event-out (LOEO) evaluation over all 11 events with a ResNet-34 U-Net and finds no reliable
-terrain gain (macro IoU 0.564 for SAR versus 0.570 with HAND and slope; confidence intervals include
-zero), as we do in Section~\ref{sec:loeo}; it does not test external events or vary the number of
-training events. Chandrasiri and Liyanage~\cite{chandrasiri2026} hold out three events in turn with
-VV/VH-only U-Nets and topology-aware metrics, without terrain.
+Several studies hold out whole events. Konapala \emph{et al.}~\cite{konapala2021exploring} train on nine
+Sen1Floods11 countries and test on the other two (ten repetitions): an SRTM DEM raises Sentinel-1's median F1
+from 0.62 to 0.73, whereas on the official split Yadav \emph{et al.} find the DEM slightly harmful, the contrast
+this paper examines. MMFlood~\cite{montello2022mmflood} splits CEMS activations (54 for training, 34 for test)
+and reports a 1.5\% improvement (to 0.63 mIoU) from adding a DEM, in a single run. Kuro Siwo~\cite{bountos2024kurosiwo} tests on 10 held-out
+events and finds DEM information of negligible benefit; it reports the best of DEM, slope and no elevation per
+architecture rather than paired differences. WorldFloods~\cite{mateogarcia2021worldfloods} also holds out
+events, for Sentinel-2 without terrain. An unreviewed project~\cite{pranav2026loeo} runs leave-one-event-out
+(LOEO) evaluation over the 11 Sen1Floods11 events with a ResNet-34 U-Net and finds no reliable gain from HAND
+and slope (macro IoU 0.564 vs.\ 0.570), as we do in Section~\ref{sec:loeo}. Chandrasiri and
+Liyanage~\cite{chandrasiri2026} hold out three events in turn without terrain.
 
 \subsection{Physics-guided losses and cross-event generalization}
 Gebre \emph{et al.}~\cite{gebre2026physics} combine a U-Net and a Fourier neural operator with
@@ -38,7 +43,8 @@ out-of-distribution events and find detection limited jointly by land cover and 
 the error due to disagreement between reference products; they do not test terrain inputs.
 
 \subsection{Gap}
-We found no study that (a) tests a terrain prior on many external flood events, where 11-event LOEO is
-underpowered; (b) compares terrain mechanisms---input, loss, mask---on held-out events with paired
-event-level statistics; or (c) measures how the value of a terrain prior depends on the number of
-training events, separately from the number of tiles.
+Terrain inputs have thus been tried on held-out events, with mixed results, but as raw elevation or slope, in
+single runs or best-of comparisons, without uncertainty over events. We found no study that (a) tests HAND on
+many external flood events with paired event-level statistics; (b) tests whether a terrain gain needs terrain
+that is correct for the place; (c) compares terrain as input, loss and mask on held-out events; or (d)
+measures how the value of terrain depends on the number of training events.

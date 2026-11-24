@@ -13,10 +13,11 @@ MODE=${1:?seeds|losses|masks|fm-lr}
 ACCOUNT=${ACCOUNT:-uva-mira}
 ROOT=${FLOODSEG_ROOT:-/scratch/$USER/floodseg}
 R=$ROOT/runs; D=$ROOT/data
+read -r -a SB <<< "${SBATCH_EXTRA:-}"   # extra sbatch options, e.g. a MIG partition: --partition=gpu-mig --gres=gpu:1g.24gb:1 --constraint= --cpus-per-task=2 --mem=24G
 
 train() {  # name seed [overrides...] -> job id
   local name=$1 seed=$2; shift 2
-  sbatch --parsable --account="$ACCOUNT" --job-name="${name//\//-}" slurm/train.sbatch configs/base.yaml \
+  sbatch --parsable --account="$ACCOUNT" "${SB[@]}" --job-name="${name//\//-}" slurm/train.sbatch configs/base.yaml \
     "name=$name" "seed=$seed" "$@"
 }
 evaluate() {  # dependency ("" for none) suffix [eval options...] -- run-dirs...
@@ -25,12 +26,12 @@ evaluate() {  # dependency ("" for none) suffix [eval options...] -- run-dirs...
   while [ "$1" != -- ]; do opts+=("$1"); shift; done; shift
   local dep=(); [ -n "$deps" ] && dep=(--dependency=afterok:$deps)
   for n in geoid_test geoid_test_flood; do
-    sbatch --parsable --account="$ACCOUNT" "${dep[@]}" --job-name="ext-$n$sfx" slurm/eval_external.sbatch \
+    sbatch --parsable --account="$ACCOUNT" "${SB[@]}" "${dep[@]}" --job-name="ext-$n$sfx" slurm/eval_external.sbatch \
       "$D/$n" "$n$sfx" "${opts[@]}" "$@"
   done
   for set in test heldout; do
     [ -n "$sfx" ] && [ $set = heldout ] && continue   # masks: test set only
-    sbatch --parsable --account="$ACCOUNT" "${dep[@]}" --job-name="proto-$set$sfx" slurm/eval_geoid_protocol.sbatch \
+    sbatch --parsable --account="$ACCOUNT" "${SB[@]}" "${dep[@]}" --job-name="proto-$set$sfx" slurm/eval_geoid_protocol.sbatch \
       $set --name "geoid_proto_$set$sfx" "${opts[@]}" "$@"
   done
 }
