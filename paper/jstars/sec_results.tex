@@ -61,14 +61,14 @@ the plain U-Net, and its HAND gain is smaller: clear for all water, unresolved f
 reaching zero). With 79 events, which events gain is consistent across backbones ($\rho = 0.79$ all water,
 0.69 flood only), unlike the 11-event LOEO ($\rho = 0.07$).
 
-\emph{Not a calibration shift.} Models trained on Sen1Floods11 are over-confident on GEOID-Flood (best
-pooled thresholds 0.52--0.92 over seeds and backbones, for both input sets), so a fixed threshold of 0.5
-could favour one input set. From per-event probability histograms (200 bins), event-mean average
-precision rises from 0.743 to 0.801 (CIs over test events; all water, +0.059 \ci{+0.037}{+0.083}, 72/79 events) and from 0.457
-to 0.499 (flooded only, +0.042 \ci{+0.026}{+0.059}, 54/77). Pooled IoU at the best single threshold,
-chosen on the test set and so an upper bound for any recalibration applied to both models, rises from
-0.695 to 0.750 and from 0.427 to 0.493. For ResNet-34 the AP gains are +0.043 and +0.044 and the
-best-threshold IoU gains +0.028 and +0.040, all CIs above zero.
+\emph{Not a calibration shift.} On GEOID-Flood the best pooled threshold ranges from 0.35 to 0.92 over
+seeds, backbones and input sets, so a fixed threshold of 0.5 could favour one input set. From per-event
+probability histograms (200 bins), event-mean average precision rises from 0.744 to 0.801 (CIs over test
+events; all water, +0.057 \ci{+0.038}{+0.080}, 75/79 events) and from 0.456 to 0.499 (flooded only,
++0.043 \ci{+0.029}{+0.059}, 61/77). Pooled IoU at the best single threshold, chosen on the test set and
+so an upper bound for any recalibration applied to both models, rises from 0.679 to 0.749 and from 0.421
+to 0.492. For ResNet-34 the AP gains are +0.042 and +0.040 and the best-threshold IoU gains +0.035 and
++0.047, all CIs above zero.
 
 \emph{GEOID-Flood protocol.} Under GEOID-Flood's own pre/post protocol (Section~\ref{sec:methods}), the
 Sen1Floods11-trained U-Net scores a pooled \iouf{} of 0.390 ± 0.017 (SAR) and 0.465 ± 0.011 (+ HAND), Δ

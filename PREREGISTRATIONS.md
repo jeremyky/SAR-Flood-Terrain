@@ -294,7 +294,14 @@ flood (3 seeds: 0.72, 0.54); all-water gain vs. median HAND ρ = +0.44, slope +0
 p ≤ 0.008; 3 seeds: +0.48, +0.47, +0.42); flood-only vs. median HAND ρ = +0.15, adjusted p = 0.39 (3 seeds:
 +0.21, 0.15); Europe vs. elsewhere, flood: p = 0.97 U-Net, 0.42 ResNet-34 (3 seeds: 0.18, 0.81). The strata
 (#7) and the country-cluster bootstrap (#8) stay at seeds 0-2 as registered (`scripts/cluster_bootstrap.py`
-gained `--seeds`; the registered CSV is reproduced exactly).
+gained `--seeds`; the registered CSV is reproduced exactly). Threshold-free scores with seeds 0-4 (exploratory, as the 5-seed
+correlations; `scripts/eval_prob_hist.py report`, histograms for seeds 3-4 from `scripts/eval_many.py probhist`,
+`reports/probhist5.txt`; CIs over test events): event-mean AP all water 0.744 → 0.801, +0.057 [+0.038, +0.080],
+75/79 (3 seeds: +0.059, 72/79); flooded only 0.456 → 0.499, +0.043 [+0.029, +0.059], 61/77 (3 seeds: +0.042);
+best-threshold pooled IoU +0.070 and +0.070 (3 seeds: +0.055, +0.066); ResNet-34 AP +0.042 and +0.040,
+best-threshold IoU +0.035 and +0.047. The best thresholds of SAR-only seeds 3-4 on all water are 0.345 and 0.36
+(seeds 0-2: 0.615-0.745), so the draft's statement that the models are over-confident on GEOID-Flood is replaced
+by the range of best thresholds (0.35-0.92).
 
 **10 (masks).** Every post-mask improves the SAR-only model with a CI above zero (seeds 0-4,
 `reports/transfer_masks.csv`): flooded only +0.015 [+0.007, +0.025] at 5 m to +0.010 [+0.005, +0.017] at 20 m;
