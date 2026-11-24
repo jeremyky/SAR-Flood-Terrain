@@ -23,7 +23,7 @@
 \renewcommand{\thefigure}{S\arabic{figure}}
 
 \begin{document}
-\title{Supplementary Material for ``Terrain Helps SAR Flood Mapping on New Floods, and Same-Event Splits Hide It''}
+\title{Supplementary Material for ``Terrain Helps SAR Flood Mapping on New Floods''}
 \author{Jeremy~Ky, Bao~Duong, and~Rich~Nguyen}
 \maketitle
 \sloppy
@@ -291,6 +291,12 @@ mangroves (5/7 events) & 0.205 → 0.177 & −0.030 [−0.042, +0.033] & 0.37 �
 \end{tabular}}
 \end{table}
 
+\emph{Country clusters} (pre-registered \#8, seeds 0--2). Event-mean HAND gain of the Sen1Floods11-trained
+U-Net with the CI resampling events and seeds, then countries (34--35, with all their events) and seeds: flood
++0.032 \ci{+0.018}{+0.050} and \ci{+0.017}{+0.051}; all water +0.061 \ci{+0.040}{+0.087} and
+\ci{+0.039}{+0.089}. ResNet-34: flood +0.022 \ci{+0.006}{+0.039} and \ci{+0.005}{+0.039}; all water +0.036
+\ci{+0.012}{+0.065} and \ci{+0.014}{+0.064}.
+
 \section*{HAND perturbations (mechanism tests)}
 
 \begin{table}[H]
@@ -320,13 +326,157 @@ Trained with other events' HAND − correct HAND & −0.037 [−0.053, −0.022]
 \end{tabular}}
 \end{table}
 
+\section*{Same tiles with their event in training or held out}
+
+\begin{table}[H]
+\caption{The 90 tiles of Sen1Floods11's official test split (10 events), scored by the official-split models,
+trained on other tiles of the same events, and by the leave-one-event-out models that held the tile's event
+out (pre-registered \#9; all water, hand labels; 5 seeds in each setting). Per event: IoU pooled over the
+event's test tiles, mean over seeds; gain: SAR + HAND minus SAR only from the same seed. Summary rows:
+two-way 95\% CIs (events shared by both settings, seeds resampled within each).}
+\centering
+\resizebox{\ifdim\width>\linewidth\linewidth\else\width\fi}{!}{%
+\begin{tabular}{@{}lrcccccc@{}}
+\toprule
+ & & \multicolumn{3}{c}{Event in training (official split)} & \multicolumn{3}{c}{Event held out (LOEO)} \\
+Event & Tiles & SAR & + HAND & Gain & SAR & + HAND & Gain \\
+\midrule
+Ghana & 11 & 0.554 & 0.544 & −0.010 & 0.529 & 0.537 & +0.007 \\
+India & 14 & 0.696 & 0.707 & +0.011 & 0.681 & 0.697 & +0.016 \\
+Mekong & 6 & 0.854 & 0.850 & −0.004 & 0.855 & 0.855 & +0.001 \\
+Nigeria & 4 & 0.885 & 0.881 & −0.005 & 0.887 & 0.887 & +0.000 \\
+Pakistan & 6 & 0.217 & 0.235 & +0.017 & 0.229 & 0.262 & +0.034 \\
+Paraguay & 14 & 0.649 & 0.663 & +0.014 & 0.578 & 0.682 & +0.103 \\
+Somalia & 6 & 0.465 & 0.427 & −0.039 & 0.491 & 0.498 & +0.007 \\
+Spain & 6 & 0.716 & 0.725 & +0.010 & 0.727 & 0.718 & −0.008 \\
+Sri Lanka & 9 & 0.843 & 0.873 & +0.030 & 0.845 & 0.878 & +0.033 \\
+USA & 14 & 0.549 & 0.538 & −0.011 & 0.492 & 0.472 & −0.019 \\
+\midrule
+Event mean & & & & +0.001 [−0.021, +0.019] & & & +0.017 [−0.004, +0.043] \\
+Pooled over the 90 tiles & & & & +0.008 [−0.007, +0.018] & & & +0.024 [−0.007, +0.053] \\
+\bottomrule
+\end{tabular}}
+\end{table}
+
+Held out minus in training: event-mean +0.016 \ci{−0.009}{+0.045} (primary), pooled +0.016
+\ci{−0.013}{+0.046}; the held-out gain is larger on 8 of the 10 events. The hypothesis (a CI above zero) is
+not supported. Paraguay contributes most: with its event held out, the SAR-only model loses 0.07 IoU on its
+tiles and the HAND model none.
+
+\section*{Physics losses and HAND post-masks on the Sen1Floods11 transfer}
+
+\begin{table}[H]
+\caption{Physics losses and HAND post-masks, trained on the 11 Sen1Floods11 events, all 77/79 GEOID-Flood test
+events (pre-registered \#10; losses: 3 seeds, masks: 5 seeds; two-way 95\% CIs). A mask at $t$ sets predicted
+water above $t$ metres HAND to dry (in both images under the protocol); no retraining.}
+\label{tab:transferlossmask}
+\centering
+\resizebox{\ifdim\width>\linewidth\linewidth\else\width\fi}{!}{%
+\begin{tabular}{@{}lccc@{}}
+\toprule
+Comparison & Flood, event-mean Δ & All water, event-mean Δ & Protocol pooled Δ \\
+\midrule
+SAR only + monotonicity loss − SAR only & +0.000 [−0.007, +0.008] & −0.011 [−0.021, −0.003] & −0.003 [−0.018, +0.008] \\
+SAR only + ceiling loss − SAR only & +0.008 [−0.004, +0.024] & +0.006 [−0.011, +0.025] & +0.003 [−0.017, +0.032] \\
+SAR only + monotonicity, 30-m stride, $w{=}1$ − SAR only & +0.002 [−0.004, +0.007] & +0.001 [−0.009, +0.009] & +0.002 [−0.019, +0.020] \\
+SAR only + monotonicity, 30-m stride, $w{=}10$ − SAR only & +0.009 [+0.003, +0.017] & +0.002 [−0.014, +0.014] & +0.008 [−0.001, +0.017] \\
+\midrule
+SAR only + mask 5\,m − SAR only & +0.015 [+0.007, +0.025] & +0.021 [+0.008, +0.037] & +0.010 [+0.002, +0.020] \\
+SAR only + mask 10\,m − SAR only & +0.013 [+0.006, +0.021] & +0.020 [+0.009, +0.035] & +0.010 [+0.005, +0.017] \\
+SAR only + mask 15\,m − SAR only & +0.011 [+0.005, +0.019] & +0.019 [+0.008, +0.033] & +0.008 [+0.004, +0.014] \\
+SAR only + mask 20\,m − SAR only & +0.010 [+0.005, +0.017] & +0.018 [+0.008, +0.031] & +0.007 [+0.003, +0.011] \\
+SAR + HAND + mask 5\,m − SAR + HAND & +0.003 [−0.001, +0.012] & +0.003 [−0.002, +0.012] & −0.003 [−0.007, −0.000] \\
+SAR + HAND + mask 10\,m − SAR + HAND & +0.004 [+0.000, +0.012] & +0.004 [−0.000, +0.013] & +0.000 [−0.001, +0.001] \\
+SAR + HAND + mask 15\,m − SAR + HAND & +0.003 [+0.000, +0.011] & +0.005 [+0.000, +0.014] & +0.000 [−0.000, +0.001] \\
+SAR + HAND + mask 20\,m − SAR + HAND & +0.003 [+0.000, +0.011] & +0.005 [+0.000, +0.013] & +0.000 [+0.000, +0.001] \\
+\midrule
+SAR + HAND − SAR only (Table III) & +0.032 [+0.019, +0.048] & +0.063 [+0.044, +0.085] & +0.074 [+0.035, +0.126] \\
+SAR + HAND − (SAR only + mask 5\,m)$^a$ & +0.017 [+0.005, +0.032] & +0.042 [+0.025, +0.062] & +0.064 [+0.025, +0.115] \\
+SAR + HAND − (SAR only + mask 20\,m)$^a$ & +0.023 [+0.010, +0.038] & +0.045 [+0.029, +0.063] & +0.067 [+0.028, +0.119] \\
+\bottomrule
+\end{tabular}}
+\\[2pt]\raggedright\footnotesize $^a$Exploratory (not pre-registered).
+\end{table}
+
+Unlike in leave-one-event-out, where the 15-m mask changed held-out IoU by less than 0.003, every mask
+improves the SAR-only model on the external events, on 52--71 of the 77/79 events, by removing water
+predicted on high ground, which the HAND input also removes. The input gains two to three and a half times as much in
+event-mean IoU and seven to ten times as much under the protocol, and masking the HAND model adds almost
+nothing. Of the losses, only monotonicity at a 30-m stride and weight 10 improves the SAR-only model with a
+CI above zero, in flooded-water IoU (on 53 of 77 events), by about as much as a 20-m mask; the stride-1
+monotonicity loss lowers all-water IoU (on 55 of 79 events).
+
+\section*{Do the reference labels encode a HAND mask?}
+
+The Global Flood Monitoring product excludes pixels with HAND of 10\,m or more (15\,m in earlier versions,
+after Twele et al.)~\cite{gfm2025pdd,twele2016sentinel1}. If the reference labels had been made with such an
+exclusion, a model given HAND could gain by reproducing it. GEOID-Flood test labels are CEMS rapid-mapping
+delineations, whose documentation describes semi-automatic classification and photo-interpretation and no
+terrain mask~\cite{joubertboitat2020cemsrm}; Sen1Floods11's hand labels were drawn from Sentinel-1 and
+Sentinel-2 imagery alone~\cite{bonafilia2020sen1floods11}. Table~\ref{tab:labelhand} checks the labels
+directly (pre-registered \#13, descriptive). A cut-off is flagged when an event has at least 1,000
+labelled-water pixels within 1\,m below a threshold, at least 1,000 valid pixels within 1\,m above it, and no
+labelled water there; no event in either dataset is flagged at any threshold. Of the 72 flood events with at
+least 1\% of their area above 15\,m HAND, 56 have labelled flood water there. The 99th percentile of
+labelled-water HAND has a median over events of 6.5\,m (flooded water; range 0.2--87.5\,m), 6.0\,m (all
+water; 0.2--40.2\,m) and 5.0\,m (Sen1Floods11; 1.2--10.2\,m). GEOID-Flood labels thus put more water at high
+HAND than Sen1Floods11's hand labels do, not less.
+
+\begin{table}[H]
+\caption{Labelled water above HAND thresholds, per event. Events: events with at least 1\% of their valid
+area above the threshold; none above: of these, events with no labelled water above it; median share: median
+over all events of the share of labelled water above the threshold; cut-offs: see text.}
+\label{tab:labelhand}
+\centering
+\resizebox{\ifdim\width>\linewidth\linewidth\else\width\fi}{!}{%
+\begin{tabular}{@{}lccccccccc@{}}
+\toprule
+ & \multicolumn{3}{c}{GEOID-Flood, flooded (77 events)} & \multicolumn{3}{c}{GEOID-Flood, all water (79)} &
+ \multicolumn{3}{c}{Sen1Floods11, hand labels (11)} \\
+HAND & Events / none above & Median share & Cut-offs & Events / none above & Median share & Cut-offs &
+Events / none above & Median share & Cut-offs \\
+\midrule
+5\,m & 77 / 3 & 1.51\% & 0 & 79 / 1 & 1.24\% & 0 & 11 / 0 & 0.93\% & 0 \\
+10\,m & 73 / 12 & 0.28\% & 0 & 75 / 5 & 0.23\% & 0 & 10 / 0 & 0.05\% & 0 \\
+15\,m & 72 / 16 & 0.15\% & 0 & 74 / 11 & 0.09\% & 0 & 10 / 2 & 0.01\% & 0 \\
+20\,m & 71 / 21 & 0.05\% & 0 & 72 / 16 & 0.06\% & 0 & 10 / 2 & 0.01\% & 0 \\
+\bottomrule
+\end{tabular}}
+\end{table}
+
+\section*{Pre-registration record}
+
+\begin{table}[H]
+\caption{Pre-registered analyses: when each plan was committed (git commit time, UTC$-$5) and where. Plans,
+deviations and outcomes are in the repository's \texttt{PREREGISTRATIONS.md}. Analyses 9--15 respond to an
+external review of a draft of this paper; what had been seen before they were fixed is listed there.}
+\label{tab:prereg}
+\centering
+\resizebox{\ifdim\width>\linewidth\linewidth\else\width\fi}{!}{%
+\begin{tabular}{@{}rllll@{}}
+\toprule
+\# & Analysis & Paper & Fixed & Commit \\
+\midrule
+1 & HAND gain vs.\ training events at 500 tiles (confirmation test) & V-F & 2026-11-12 07:48 & c5616fa$^a$ \\
+2 & Relief gate & V-H & 2026-11-21 11:03 & 8b9a359$^a$ \\
+3 & HAND dropout & V-H & 2026-11-21 11:37 & 6eb1e69, b08389c$^a$ \\
+4 & Terrain ablation on the Sen1Floods11 transfer & V-C & 2026-11-21 21:29 & 58cc5ad$^a$ \\
+5 & TerraMind on the Sen1Floods11 transfer & V-E & 2026-11-21 21:31 & 6f7aacf$^a$ \\
+6--8 & HAND perturbations; errors by stratum; country-cluster bootstrap & V-B, V-D & 2026-11-22 21:52 & 106706e \\
+9--15 & Same tiles in/out of training; losses and masks on the transfer; split overlap; TerraMind
+learning rate; label check; fixed-epoch learning curve; five seeds & V, S & 2026-11-23 20:01 & 014c1af \\
+\bottomrule
+\end{tabular}}
+\\[2pt]\raggedright\footnotesize $^a$Development repository, whose history is available from the authors on
+request; other commits are in the public repository.
+\end{table}
 
 \section*{Additional figures}
 
 \begin{figure}[H]
 \centering
 \includegraphics[width=0.7\textwidth]{fig_gain_vs_terrain.pdf}
-\caption{Per-event HAND gain of the Sen1Floods11-trained U-Net on GEOID-Flood test events against the
+\caption{Per-event HAND gain (mean over 5 seeds) of the Sen1Floods11-trained U-Net on GEOID-Flood test events against the
 event's median slope, for all water (left, 79 events) and flooded water only (right, 77 events). The
 all-water gain grows with terrain variation.}
 \end{figure}
@@ -338,5 +488,8 @@ all-water gain grows with terrain variation.}
 U-Net, the change-detection U-Net and TerraMind, trained on 20 or 159 GEOID-Flood events; unseen test
 activations (left) and held-out 2026 events (right).}
 \end{figure}
+
+\bibliographystyle{IEEEtran}
+\bibliography{refs}
 
 \end{document}

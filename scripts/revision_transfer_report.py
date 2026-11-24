@@ -1,11 +1,14 @@
 """Sen1Floods11 -> GEOID-Flood transfer: physics losses, HAND post-masks and TerraMind learning rates
-(PREREGISTRATIONS.md #10 and #12). Same estimands as scripts/ablation_all_report.py: all 77/79 GEOID test events,
+(PREREGISTRATIONS.md #10 and #12), and the five-seed headline (#15: Table III, Fig. 1). Same estimands as scripts/ablation_all_report.py: all 77/79 GEOID test events,
 event-mean IoU (flooded only, all water) and pooled IoU_flood under the GEOID-Flood protocol, two-way 95% CIs over
 seeds x events; each comparison uses the seeds both variants have.
 
     python scripts/revision_transfer_report.py losses --runs $S/runs/all --out $S/reports/transfer_losses.csv
     python scripts/revision_transfer_report.py masks  --runs $S/runs/all --out $S/reports/transfer_masks.csv
     python scripts/revision_transfer_report.py fm-lr  --runs $S/runs/all --out $S/reports/transfer_fm_lr.csv
+    python scripts/revision_transfer_report.py headline --runs $S/runs/all --out $S/reports/transfer_headline.csv
+    python scripts/revision_transfer_report.py input-vs-mask --runs $S/runs/all \
+        --out $S/reports/transfer_input_vs_mask_exploratory.csv   # exploratory, not pre-registered
 """
 from __future__ import annotations
 
@@ -54,7 +57,7 @@ def val_iou(runs: Path, variant: str) -> list[float]:
 
 def main() -> None:
     p = argparse.ArgumentParser()
-    p.add_argument("what", choices=["losses", "masks", "fm-lr"])
+    p.add_argument("what", choices=["losses", "masks", "fm-lr", "headline", "input-vs-mask"])
     p.add_argument("--runs", type=Path, required=True)
     p.add_argument("--boot", type=int, default=4000)
     p.add_argument("--out", type=Path)
@@ -64,6 +67,10 @@ def main() -> None:
     if args.what == "losses":
         pairs = [(v, "sar_only") for v in LOSSES] + [("sar_hand", "sar_only")]
         out = table(args.runs, pairs, boot=args.boot)
+    elif args.what == "headline":
+        out = table(args.runs, [("sar_hand", "sar_only"), ("r34_sar_hand", "r34_sar_only")], boot=args.boot)
+    elif args.what == "input-vs-mask":
+        out = table(args.runs, [("sar_hand", f"sar_only+mask{t}") for t in MASKS], masks=MASKS, boot=args.boot)
     elif args.what == "masks":
         pairs = [(f"sar_only+mask{t}", "sar_only") for t in MASKS] + [(f"sar_hand+mask{t}", "sar_hand") for t in MASKS]
         pairs += [("sar_hand", "sar_only")]

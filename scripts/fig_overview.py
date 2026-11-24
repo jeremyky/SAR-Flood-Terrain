@@ -12,8 +12,9 @@
     python scripts/fig_overview.py --scratch /scratch/$USER/floodseg --out figures/fig_overview.png
 
 Reads reports/official_split.csv (scripts/official_report.py), reports/matched_split.csv
-(scripts/matched_split_report.py) and reports/ablation_all.csv (scripts/ablation_all_report.py --seeds seed0
-seed1 seed2); the remaining rows are computed here with the same bootstrap (hand_gate.compare).
+(scripts/matched_split_report.py), reports/transfer_headline.csv (scripts/revision_transfer_report.py headline)
+and reports/ablation_all.csv (scripts/ablation_all_report.py --seeds seed0 seed1 seed2; or --fm-report); only the
+TerraMind + HAND row, which no table reports, is computed here with the same bootstrap (hand_gate.compare).
 """
 from __future__ import annotations
 
@@ -57,9 +58,10 @@ def main() -> None:
     p.add_argument("--out", type=Path, default=Path("figures/fig_overview.png"))
     p.add_argument("--fm", nargs=2, default=["fm_sar", "fm_sar_hand"], metavar=("TM", "TM_HAND"),
                    help="TerraMind run dirs under runs/all (the learning rates selected in PREREGISTRATIONS.md #12)")
+    p.add_argument("--fm-report", default="ablation_all.csv",
+                   help="report under reports/ holding '<TM> - sar_only' (Table VI): ablation_all.csv or transfer_fm_lr.csv")
     args = p.parse_args()
     rep, runs = args.scratch / "reports", args.scratch / "runs"
-    rng = np.random.default_rng(0)
     c = COLORS["sar_hand"]
 
     fig, (a, b) = plt.subplots(1, 2, figsize=(7.16, 2.45), gridspec_kw={"width_ratios": [1, 1.1], "wspace": 0.95})
@@ -81,10 +83,11 @@ def main() -> None:
     bol = [float(s) for s in off.delta_by_seed.split()]
     row(a, 2, bol, float(np.mean(bol)), None, c)
     labels.append("Bolivia\n(held out, 1 event)")
+    head = pd.read_csv(rep / "transfer_headline.csv").set_index(["test", "comparison"])
+    r = head.loc[("all water", "sar_hand - sar_only")]
     water = load(runs / "all", "geoid_test")
-    r = compare(water, "sar_hand", "sar_only", rng, 4000)
-    row(a, 3, seed_gains(water, "sar_hand", "sar_only"), r["event_mean"], (r["ev_lo"], r["ev_hi"]), c)
-    labels.append(f"{r['events']} GEOID-Flood\nevents (external)")
+    row(a, 3, seed_gains(water, "sar_hand", "sar_only"), r.event_mean, (r.ev_lo, r.ev_hi), c)
+    labels.append(f"{int(r.events)} GEOID-Flood\nevents (external)")
     a.set_yticks(range(4), labels)
     a.set_xlabel("HAND gain\n(event-mean water IoU)")
     a.set_title("(a) HAND gain by test setting", loc="left")
@@ -93,12 +96,13 @@ def main() -> None:
     abl = pd.read_csv(rep / "ablation_all.csv").set_index(["test", "comparison"])
     flood = load(runs / "all", "geoid_test_flood")
     tm, tmh = args.fm
+    fmr = pd.read_csv(rep / args.fm_report).set_index(["test", "comparison"])
     fl = flood.assign(variant=flood.variant.replace({tm: "TM", tmh: "TM_HAND"}))
     items = [("+ DEM + slope", abl.loc[("flooded only", "sar_dem_slope - sar_only")], GREY),
-             ("+ HAND", pd.Series(compare(flood, "sar_hand", "sar_only", rng, 4000)), c),
+             ("+ HAND", head.loc[("flooded only", "sar_hand - sar_only")], c),
              ("+ HAND, DEM, slope", abl.loc[("flooded only", "sar_terrain - sar_only")], c),
-             ("TerraMind (101 M)", pd.Series(compare(fl, "TM", "sar_only", rng, 4000)), COLORS["sar_only"]),
-             ("TerraMind + HAND", pd.Series(compare(fl, "TM_HAND", "sar_only", rng, 4000)), COLORS["sar_only"])]
+             ("TerraMind (101 M)", fmr.loc[("flooded only", f"{tm} - sar_only")], COLORS["sar_only"]),
+             ("TerraMind + HAND", pd.Series(compare(fl, "TM_HAND", "sar_only", np.random.default_rng(0), 10000)), COLORS["sar_only"])]
     for i, (label, r, col) in enumerate(items):
         b.plot([r.ev_lo, r.ev_hi], [i, i], color=col, lw=2, solid_capstyle="round")
         b.plot(r.event_mean, i, "o", ms=7, color=col, mec=SURFACE, mew=1.2)

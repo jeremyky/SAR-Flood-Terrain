@@ -28,32 +28,39 @@ training events shows how the value of terrain changes as more floods are labell
 \begin{figure*}[t]
 \centering
 \includegraphics[width=\textwidth]{fig_overview.pdf}
-\caption{Models trained on the 11 Sen1Floods11 events. (a) HAND gain in pooled water IoU on Sen1Floods11's
-test split (tiles from the training events), its Bolivia hold-out and 79 external GEOID-Flood events (dots:
-seeds; diamonds: means; bar: 95\% CI). (b) Gain over the SAR-only U-Net in event-mean flood IoU on 77
-GEOID-Flood events (two-way 95\% CIs).}
+\caption{Models trained on the 11 Sen1Floods11 events. (a) HAND gain in event-mean water IoU on
+Sen1Floods11's 90 official test tiles, scored by models trained on other tiles of the same events and by
+leave-one-event-out models that held each tile's event out; on Sen1Floods11's Bolivia hold-out; and on 79
+external GEOID-Flood events. Dots: seeds (5 per setting); diamonds: means; bars: two-way 95\% CIs over seeds
+and events (none for Bolivia, a single event). (b) Gain over the SAR-only U-Net in event-mean flood IoU on
+77 GEOID-Flood events, two-way 95\% CIs (+ HAND: 5 seeds; other rows: 3).}
 \label{fig:overview}
 \end{figure*}
 
 Three findings stand out (Fig.~\ref{fig:overview}):
 \begin{enumerate}
-\item \emph{Same-event splits hide the value of terrain.} A U-Net trained on Sen1Floods11 gains almost
-nothing from HAND on that dataset's official test split (+0.007 IoU), whose tiles come from the training
-events, but +0.128 on its held-out Bolivia event and +0.059 in pooled water IoU over 79 external floods
-(+0.061 in mean event IoU, improving 69 of them).
+\item \emph{On new floods, terrain helps clearly.} A U-Net trained on the 11 Sen1Floods11 events gains
++0.063 in mean event IoU for water from HAND over 79 external floods, improving 68 of them, and +0.032 for
+flooded water over the 77 with flood. On Sen1Floods11's official test tiles, whose events are in training,
+it gains +0.001; scored by models that held each tile's event out, the same tiles gain more on 8 of 10
+events, but ten events cannot resolve the difference.
 \item \emph{The gain needs correctly located, detailed height above drainage.} In this transfer, elevation
-and slope recover only a quarter of it at the event level; shifting HAND by 500\,m in each axis,
+and slope recover only a quarter of it at the event level (three-fifths of the pooled gain under the
+benchmark protocol, which weights the largest floods); shifting HAND by 500\,m in each axis,
 blurring it, or swapping in another flood's HAND removes the event-level gain, and a model trained with mismatched HAND gains nothing, so it
 is not a side effect of an extra input channel. A permanent-water map recovers none of the flood-extent
 gain and, with many training events, appears to teach the model to look for water only where it already was.
-\item \emph{A foundation model does not replace terrain.} HAND helps a fine-tuned 101\,M-parameter
-TerraMind~\cite{jakubik2025terramind} about as much as it helps a 7.8\,M-parameter U-Net in event-mean
-flood IoU (less for all water), and the small U-Net with HAND beats TerraMind without it.
+\item \emph{With few training events, a foundation model does not replace terrain.}
+% PENDING-12: revisit after the TerraMind learning-rate grid
+HAND helps a fine-tuned 101\,M-parameter TerraMind~\cite{jakubik2025terramind} about as much as a
+7.8\,M-parameter U-Net in event-mean flood IoU (with a CI reaching zero), and the small U-Net with HAND
+beats TerraMind without it; with 159 GEOID-Flood training events it no longer does.
 \end{enumerate}
 
-We also show that HAND as a physics loss or mask does nothing, even when the loss demonstrably enforces its
-constraint; that the input gain survives threshold-free scoring, GEOID-Flood's own protocol and resampling
-by country, and where it occurs by HAND, slope and land cover; that with 159 GEOID-Flood training events the
-flood-extent gain is no longer detectable (a pre-registered test of a steady decline was null), while 500
-tiles from all 159 events match all 8,712; and that two pre-registered remedies for HAND's failure cases do
-not help. The full pipeline, run outputs and checkpoints are released.
+We also find that HAND as a training loss does nothing within Sen1Floods11, even when the loss
+demonstrably enforces its constraint, and on new floods helps in only one of four variants, by a quarter of
+the input's flood gain; that as a post-processing mask it recovers about a third of the input gain on new
+floods but nothing on Sen1Floods11; that the input gain survives threshold-free scoring, GEOID-Flood's own protocol
+and resampling by country; that with 159 GEOID-Flood training events the flood-extent gain is no longer
+detectable (a pre-registered test of a steady decline was null); and that two pre-registered remedies for
+HAND's failure cases do not help. The full pipeline, run outputs and checkpoints are released.

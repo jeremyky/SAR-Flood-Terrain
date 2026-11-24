@@ -1,14 +1,15 @@
 \section{Discussion}
 \label{sec:discussion}
 
-\subsection{What same-event evaluation misses}
-On Sen1Floods11's own split HAND looks useless (+0.007); on an event outside training (Bolivia) and on 79
-external floods it helps clearly. The contrast is what a practitioner would see when choosing inputs from
-the standard benchmark. It does not fully isolate the effect of the split: the external events also differ
-from Sen1Floods11 in region, scenes and labelling, so dataset shift and the change from known to new events
-act together. Bolivia, which holds the dataset fixed, points the same way but is a single event; a
-controlled within-dataset comparison of same-event and held-out-event splits at matched budgets would
-separate the two.
+\subsection{Same-event and held-out-event evaluation}
+On Sen1Floods11's own split HAND looks useless (+0.008 pooled IoU); on 79 external floods it helps clearly.
+This is what a practitioner would see when choosing inputs from the standard benchmark, but it does not
+isolate the split: the external events also differ from Sen1Floods11 in region, scenes and labelling.
+Scoring the same 90 test tiles with models that did and did not see their event holds the data fixed
+(Table~S10): the gain is larger with the event held out on 8 of 10 events (+0.017 vs.\ +0.001 event-mean),
+but the difference, +0.016 \ci{−0.009}{+0.045}, is not resolved, and Bolivia, the one event outside the
+official training split, is a single event. With ten events, a same-event split neither shows the gain nor
+rules out one of the size seen on held-out tiles; the external test, with 79 events, resolves it.
 
 \subsection{What makes HAND useful}
 The model uses what HAND says about the place. The event-level gain disappears when HAND is shifted by
@@ -21,10 +22,13 @@ and slope recover more of it, plausibly because the largest floods cover broad l
 a shift and that relief alone identifies; the event-level gain, which weights every flood equally, depends
 on the finer drainage structure. Terrain priors say where water \emph{can} be; a permanent-water map says
 where it \emph{has been}, and with 159 training events it appears to teach the model to look for water only there
-(pooled flood recall 0.69 → 0.57 at unchanged precision). As a physics loss, by contrast, HAND adds nothing: trained models already
-satisfy the tested constraints (monotonicity is violated on fewer than 0.5\% of pixel pairs), and enforcing
-them removes violations that are not where the errors are. Here the prior helps as an input, which
-carries information the SAR does not.
+(pooled flood recall 0.69 → 0.57 at unchanged precision). As a physics loss, by contrast, HAND adds little:
+trained models already satisfy the tested constraints (monotonicity is violated on fewer than 0.5\% of pixel
+pairs), and enforcing them removes violations that are not where the errors are; on new floods only the
+strongest monotonicity loss helps, by about as much as a 20-m mask. A HAND mask helps only
+where a model predicts water on high ground, as SAR-only models do on new floods but not within
+Sen1Floods11; it cannot help below its threshold, where much of the input's flood gain lies (Table~S8).
+Here the prior helps most as an input, which carries information the SAR does not.
 
 \subsection{When the advantage shrinks or fails}
 \emph{Many training events.} A model that has seen few floods may not have learned which backscatter
@@ -35,6 +39,10 @@ pre-registered test of a decline in between was null; draw-to-draw variance at 2
 20 GEOID-Flood training events, DEM and slope also recover most of HAND's gain, which suggests that more
 varied training lets a model infer where water collects from relief; we did not test this directly.
 \emph{The pre-event image} partly substitutes for terrain with few events (pooled gain at 20 events +0.024, not significant, vs.\ +0.066).
+That a U-Net trained on about 380 Sen1Floods11 chips with HAND matches one trained on 8,712 GEOID-Flood
+tiles under the protocol (0.465 vs.\ 0.469) also hints at a ceiling: noise in the rapid-mapping labels, or
+the protocol's differencing of two predictions, may limit what more training data can show. We did not
+test this.
 
 \emph{Failure cases.} HAND fails on flat terrain where everything is near drainage (Somalia, EMSR419), on
 water bodies the DEM drainage network misses (the Swedish lakes), and in mangroves (pooled over the seven
@@ -52,7 +60,11 @@ costs little. Resampling HAND onto each SAR tile's own grid, as here, avoids lar
 \subsection{Limitations}
 Besides the caveats stated with each result (one TerraMind configuration; a fixed step budget; 3--5 seeds),
 GEOID-Flood labels are CEMS rapid-mapping products~\cite{joubertboitat2020cemsrm}, not hand labels; their quality varies by
-activation, and we did not audit them, so some apparent false alarms may be unmapped water. 50 of the 79
+activation, and we did not audit them, so some apparent false alarms may be unmapped water. Labels would
+favour HAND if their makers had removed water at high HAND, as the Global Flood Monitoring product
+does~\cite{gfm2025pdd,twele2016sentinel1}; but no test event shows a cut-off of labelled water at 5--20\,m
+HAND, GEOID-Flood labels place more water at high HAND than Sen1Floods11's hand labels (Table~S15), and the
+leave-one-event-out and Bolivia gains are measured on those hand labels, drawn from imagery alone. 50 of the 79
 test events are in Europe. The change-detection baseline stacks the pre-event image as two extra channels.
 HAND inherits the drainage-network errors of the GLO-30 DEM, and we did not compare it with other
 hydrologically derived terrain features such as distance to drainage, or with HAND from other DEMs.

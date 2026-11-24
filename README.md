@@ -1,4 +1,4 @@
-# Terrain helps SAR flood mapping on new floods, and same-event splits hide it
+# Terrain helps SAR flood mapping on new floods
 
 Code and paper for an event-level study of whether terrain helps Sentinel-1 flood segmentation models on
 flood events they were not trained on.
@@ -11,20 +11,24 @@ Preprint (paper + supplement): [`paper/preprint.pdf`](paper/preprint.pdf). LaTeX
 Models trained on the 11 events of Sen1Floods11, tested on 79 external Copernicus emergency activations
 from GEOID-Flood:
 
-- **Same-event splits hide the value of terrain.** Adding height above nearest drainage (HAND) as an input
-  gains +0.007 IoU on Sen1Floods11's official test split (tiles from the training events), but +0.128 on
-  its held-out Bolivia event and +0.061 mean event IoU on the 79 external floods (69 of 79 improved,
-  p < 1e-4). The gain holds without a threshold, under GEOID-Flood's own pre/post protocol, and in event
-  IoU for a second backbone.
+- **On new floods, terrain helps clearly.** Adding height above nearest drainage (HAND) as an input
+  raises mean event IoU on the 79 external floods by +0.063 for water (0.572 → 0.635, 68 of 79 improved,
+  5 seeds) and by +0.032 for flooded water on the 77 with flood. The gain holds without a threshold and
+  under GEOID-Flood's own pre/post protocol. On Sen1Floods11's official test tiles, whose events are in
+  training, it is +0.008; scored by models that held each tile's event out, the same tiles gain more on 8
+  of 10 events, but ten events cannot resolve the difference.
 - **It is HAND's drainage structure, not relief alone, and not known water.** Elevation and slope recover
-  a quarter of the event-level flood gain; a permanent-water map none of it.
-- **A foundation model does not replace terrain.** HAND helps a fine-tuned TerraMind (101 M parameters)
-  about as much as a 7.8 M-parameter U-Net in event-mean flood IoU, and the small U-Net with HAND beats
-  TerraMind without it.
+  a quarter of the event-level flood gain; HAND shifted by 500 m or taken from another flood, and a
+  permanent-water map, recover none of it.
+- **With few training events, a foundation model does not replace terrain.** HAND helps a fine-tuned
+  TerraMind (101 M parameters) about as much as a 7.8 M-parameter U-Net in event-mean flood IoU, and the
+  small U-Net with HAND beats TerraMind without it.
 
-Also: HAND as a physics loss or post-processing mask does nothing; with 159 training events the
-flood-extent gain is no longer detectable; two remedies for HAND's failure cases (gating on flat ground,
-HAND dropout) do not help. Five analyses were pre-registered (`PREREGISTRATIONS.md`).
+Also: as a post-processing mask HAND recovers about a third of the input gain on new floods, and as a
+physics loss at most a quarter of the flood gain (one of four variants); within Sen1Floods11 neither does
+anything. With 159 training events the flood-extent gain is no longer detectable; two remedies for HAND's
+failure cases (gating on flat ground, HAND dropout) do not help. Fifteen analyses were pre-registered
+(`PREREGISTRATIONS.md`).
 
 ## Setup
 

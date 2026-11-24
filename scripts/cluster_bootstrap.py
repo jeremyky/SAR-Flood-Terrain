@@ -6,7 +6,7 @@ the 11 Sen1Floods11 events, resampling countries (with all their events) and see
 seeds. Event-mean IoU: mean over events of the seed-averaged paired difference.
 
     python scripts/cluster_bootstrap.py --runs $S/runs/all --events $S/external_explain_events.csv \
-        --out $S/reports/cluster_bootstrap.csv
+        --seeds seed0 seed1 seed2 --out $S/reports/cluster_bootstrap.csv
 """
 from __future__ import annotations
 
@@ -31,12 +31,13 @@ def main() -> None:
     p.add_argument("--cluster", default="country", choices=["country", "continent"])
     p.add_argument("--boot", type=int, default=10000)
     p.add_argument("--out", type=Path)
+    p.add_argument("--seeds", nargs="+", help="seed dirs to use (default: all); registered with seed0 seed1 seed2")
     args = p.parse_args()
     meta = pd.read_csv(args.events).set_index("event")[args.cluster]
     rng = np.random.default_rng(0)
     rows = []
     for name, label in NAMES.items():
-        df = load(args.runs, name)
+        df = load(args.runs, name, args.seeds)
         ev = df.groupby(["variant", "seed", "event"])[["tp", "fp", "fn"]].sum()
         ev = ev[(ev.tp + ev.fn).groupby(level="event").transform("max") > 0]
         iou = (ev.tp / (ev.tp + ev.fp + ev.fn)).rename("iou").reset_index()

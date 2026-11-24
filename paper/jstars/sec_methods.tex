@@ -18,8 +18,8 @@ constraint on the output. The \emph{monotonicity} loss penalizes a pixel for bei
 a pixel that lies lower above drainage: for pixel pairs $(a,b)$ a fixed stride apart along rows and
 columns with $h_a - h_b \ge 1$\,m, it adds $\max(0, p_a - p_b - m)$ for predicted probabilities $p$ and
 margin $m$, averaged over qualifying pairs. The \emph{ceiling} loss penalizes flood predicted above
-15\,m HAND. As a post-processing baseline, every run is also scored with predictions above 15\,m HAND
-set to dry.
+15\,m HAND. As a post-processing baseline, predictions above a HAND threshold are set to dry (15\,m in
+leave-one-event-out; 5, 10, 15 and 20\,m on the transfer).
 
 \subsection{Training}
 We use AdamW~\cite{loshchilov2019adamw} (learning rate $10^{-3}$, weight decay $10^{-4}$) with a one-cycle
@@ -28,8 +28,10 @@ and select the checkpoint with the best validation IoU. Sen1Floods11 models trai
 $256^2$ crops (batch 16) and validate on the official validation split or, for leave-one-event-out and
 all-event training, on 15\% of the training chips. GEOID-Flood models
 train on $512^2$ crops of the $1024^2$ tiles (batch 8) for a fixed budget of 32,670 steps---30 epochs of
-the full training set---whatever the training subset, so every subset size receives the same compute,
-and validate on GEOID-Flood's validation split. Training is seeded; cuDNN kernels are not forced to be
+the full training set---whatever the training subset, so every subset size receives the same compute
+but smaller subsets are passed over more often (10 events: about 360--1,020 epochs; 20: 150--400; 80:
+55--75); Section~\ref{sec:geoid} also trains small subsets for 30 epochs. They validate on GEOID-Flood's
+validation split. Training is seeded; cuDNN kernels are not forced to be
 deterministic.
 
 \subsection{Evaluation}
@@ -73,11 +75,13 @@ tile) and report \iouf{} under it alongside our own label modes. Our test set di
 GEOID-Flood's (EMSR388 and EMSR853 excluded), so comparisons with their numbers are indicative.
 
 \subsection{Pre-registration}
-Eight analyses were fixed in writing, with the analysis code committed to the repository, before their
-outcomes were computed: the confirmation test of the learning curve (Section~\ref{sec:geoid}), the
-relief gate and HAND dropout (Section~\ref{sec:failures}), the terrain ablation and TerraMind runs on the
-Sen1Floods11 transfer (Sections~\ref{sec:ablation} and \ref{sec:fm}), the HAND perturbation tests
-(Section~\ref{sec:mechanism}), and the stratified errors and country-cluster bootstrap
-(Section~\ref{sec:transfer}). The plans and outcomes are listed in the repository's
-\texttt{PREREGISTRATIONS.md}. Post hoc analyses are marked
-exploratory.
+Fifteen analyses were fixed in writing, with the analysis code committed to a repository, before their
+outcomes were computed (Table~S16 gives each commit and its time): the confirmation test and a
+fixed-epoch version of the learning curve (Section~\ref{sec:geoid}), the relief gate and HAND dropout
+(Section~\ref{sec:failures}), the terrain ablation, TerraMind runs and a TerraMind learning-rate grid on
+the Sen1Floods11 transfer (Sections~\ref{sec:ablation} and \ref{sec:fm}), the HAND perturbation tests
+(Section~\ref{sec:mechanism}), the stratified errors, a country-cluster bootstrap, five seeds for the
+headline, and losses and masks on the transfer (Section~\ref{sec:transfer}), the same-tile comparison of split
+types (Section~\ref{sec:loeo}), and checks of the labels and of the overlap between GEOID-Flood splits.
+The last seven answer an external review of a draft of this paper. Plans and outcomes are in the
+repository's \texttt{PREREGISTRATIONS.md}; post hoc analyses are marked exploratory.

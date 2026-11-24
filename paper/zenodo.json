@@ -2,7 +2,7 @@
   "_comment": "Metadata for the manual Zenodo upload of the files built by slurm/archive.sbatch. Add ORCIDs if available; remove this key.",
   "metadata": {
     "upload_type": "dataset",
-    "title": "Run outputs, checkpoints and code for: Terrain Helps SAR Flood Mapping on New Floods, and Same-Event Splits Hide It",
+    "title": "Run outputs, checkpoints and code for: Terrain Helps SAR Flood Mapping on New Floods",
     "creators": [
       {
         "name": "Ky, Jeremy",

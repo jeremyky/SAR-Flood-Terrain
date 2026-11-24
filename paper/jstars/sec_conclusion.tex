@@ -1,13 +1,14 @@
 \section{Conclusion}
 \label{sec:conclusion}
 
-Evaluated on floods the model has never seen, terrain helps a SAR flood-segmentation network as an input,
-and the usual same-event evaluation hides it: a U-Net trained on Sen1Floods11 gains almost nothing from
-HAND on that dataset's test split but improves water and flood mapping on 79 external CEMS activations. Its
-event-level part needs correctly located, detailed height above drainage, which relief, a permanent-water
-map or a larger pretrained model does not replace. As a physics loss or mask HAND does nothing, and with 159 training events its
-flood-extent gain is not detectable. With few labelled floods, terrain is a cheap gain that only evaluation
-on new floods reveals.
+Evaluated on floods the model has never seen, terrain helps a SAR flood-segmentation network as an input:
+a U-Net trained on the 11 Sen1Floods11 events improves water and flood mapping on 79 external CEMS
+activations. Its event-level part needs correctly located, detailed height above drainage, which relief, a
+permanent-water map or, with few training events, a larger pretrained model does not replace.
+As a post-processing mask HAND recovers part of the gain, as a physics loss little, and with 159 training
+events its flood-extent gain is not detectable. Whether same-event splits understate the gain, as the
+Bolivia hold-out suggests, would need more than Sen1Floods11's ten test events to settle. With few labelled
+floods, terrain is a cheap gain, and it should be judged on held-out floods.
 
 \section*{Data and Code Availability}
 All data are public: Sen1Floods11~\cite{bonafilia2020sen1floods11}, GEOID-Flood~\cite{geoidflood} (CC BY

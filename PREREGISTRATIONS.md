@@ -264,3 +264,46 @@ least 1% of their area above 15 m HAND, 56 have labelled flood water there. Medi
 15 m: 0.15% (GEOID flood), 0.09% (GEOID all water), 0.01% (Sen1Floods11 hand labels); 99th percentile of
 labelled-water HAND, median over events: 6.5 m, 6.0 m, 5.0 m. Paper Section VI-D, Table S15;
 `reports/label_hand_check.txt`.
+
+**15. Five seeds.** Seeds 0-4, all 77/79 GEOID test events (`scripts/revision_transfer_report.py headline`,
+`reports/transfer_headline.csv`; two-way CIs over seeds and events). U-Net: all water 0.572 → 0.635, +0.063
+[+0.044, +0.085], 68/79 improved (3 seeds: +0.061); flooded only 0.317 → 0.350, +0.032 [+0.019, +0.048], 57/77
+(3 seeds: +0.032); protocol pooled IoU_flood 0.390 ± 0.017 → 0.465 ± 0.011, +0.074 [+0.035, +0.121]
+(`eval_geoid_protocol.py report`; 3 seeds: 0.396 → 0.468, +0.072). ResNet-34: all water +0.031 [+0.010,
++0.054], 49/79 (3 seeds: +0.036, 55/79); flooded only +0.016 [−0.001, +0.033], 48/77, Wilcoxon p = 0.02 (3
+seeds: +0.022, 53/77); protocol 0.401 → 0.422, +0.021 [−0.013, +0.058] (3 seeds: +0.025). The ResNet-34 HAND
+gain shrinks with seeds 3-4 and its flood CI now reaches zero. Table III previously gave CIs over test events
+only; it now gives the two-way CI that the paper states as its default (Section IV-D). Over events only, the
+ResNet-34 flood CI is [+0.002, +0.031]; we report the two-way one, which is wider, and say the flood gain is
+unresolved. Analyses derived from the same per-event gains that are not registered with 3 seeds were redone
+with 5 (exploratory, `reports/headline5/`): backbone consistency of per-event gains ρ = 0.79 all water, 0.69
+flood (3 seeds: 0.72, 0.54); all-water gain vs. median HAND ρ = +0.44, slope +0.41, relief +0.36 (BH-adjusted
+p ≤ 0.008; 3 seeds: +0.48, +0.47, +0.42); flood-only vs. median HAND ρ = +0.15, adjusted p = 0.39 (3 seeds:
++0.21, 0.15); Europe vs. elsewhere, flood: p = 0.97 U-Net, 0.42 ResNet-34 (3 seeds: 0.18, 0.81). The strata
+(#7) and the country-cluster bootstrap (#8) stay at seeds 0-2 as registered (`scripts/cluster_bootstrap.py`
+gained `--seeds`; the registered CSV is reproduced exactly).
+
+**10 (masks).** Every post-mask improves the SAR-only model with a CI above zero (seeds 0-4,
+`reports/transfer_masks.csv`): flooded only +0.015 [+0.007, +0.025] at 5 m to +0.010 [+0.005, +0.017] at 20 m;
+all water +0.021 [+0.008, +0.037] to +0.018 [+0.008, +0.031]; protocol pooled +0.010 [+0.002, +0.020] to
++0.007 [+0.003, +0.011]. On the SAR + HAND model masks add at most +0.005 (event-mean) and change pooled
+protocol IoU by −0.003 to +0.000. As fixed in advance, the statement that HAND as a mask does nothing is
+dropped for the transfer, and every mask gain is reported next to the input gain (Section V-B, Table S11).
+Exploratory (not registered): SAR + HAND minus SAR only with a mask, flooded only +0.017 [+0.005, +0.032]
+(5 m) to +0.023 [+0.010, +0.038] (20 m); all water +0.042 to +0.045; protocol pooled +0.064 to +0.067
+(`reports/transfer_input_vs_mask_exploratory.csv`).
+
+**10 (losses).** One of the four losses improves the SAR-only model with a CI above zero (seeds 0-2,
+`reports/transfer_losses.csv`): monotonicity at a 30-m stride and weight 10, flooded only +0.009 [+0.003,
++0.017], 53/77 improved; all water +0.002 [−0.014, +0.014]; protocol pooled +0.008 [−0.001, +0.017]. Its lower
+bound is within 0.005 of zero, which the paper calls suggestive (Section IV-D). The other three do not
+(flooded only: stride-1 monotonicity +0.000, ceiling +0.008 [−0.004, +0.024], 30-m stride weight 1 +0.002);
+the stride-1 monotonicity loss lowers all-water IoU, −0.011 [−0.021, −0.003], 24/79 improved. As fixed in
+advance, the statement that HAND as a loss does nothing is dropped for the transfer and the gain is reported
+next to the input gain (+0.032 flooded only; Section V-B, Table S11); within Sen1Floods11 (Table S1) the
+statement stands. Execution note, decided before these outcomes were computed: the evaluation jobs for the
+loss runs waited on full GPU partitions and were cancelled; the 12 runs were scored on an RTX 3090 with
+`scripts/eval_many.py`, which loads each batch once for several runs and writes the same files as
+`eval_external.py` and `eval_geoid_protocol.py eval`. On 13 test tiles from 8 events it reproduced both
+drivers' outputs byte for byte on the same GPU; between this GPU and an A100 the protocol confusion counts on
+those tiles differ by fewer than 30 pixels.

@@ -1,17 +1,19 @@
 \begin{abstract}
 Flood segmentation models for Sentinel-1 radar must work on new floods, yet they are usually tested on
-images from the flood events they were trained on. We show that this hides the value of terrain. A U-Net
-trained on the 11 events of Sen1Floods11 gains almost nothing from height above nearest drainage on that
-dataset's own test split (+0.007 intersection over union) but +0.128 on its held-out Bolivia event, and on
-79 external Copernicus emergency activations it raises mean event intersection over union from 0.574 to
-0.635 for water and from 0.317 to 0.349 for flooded area, also without a threshold and under the
-benchmark's pre- and post-event protocol. The gain needs correctly located terrain: elevation and slope
-recover only a quarter of it at the event level, its event-level part vanishes when the drainage input is
-displaced by about 700 m, blurred, or taken from another flood, and a model trained on such mismatched input
-gains nothing. A fine-tuned 101-million-parameter foundation model gains about as much in flood accuracy
-and, without the input, does not match the smaller U-Net that has it. Used as a physics-based loss or mask,
-the same terrain does nothing, and with 159 training events its flood-extent gain is no longer detectable.
-With few labelled floods, terrain is a cheap gain that same-event evaluations miss.
+images from the flood events they were trained on. We test terrain priors on floods the model has not seen.
+A U-Net trained on the 11 events of Sen1Floods11 and given height above nearest drainage (HAND) as an extra
+input raises mean event intersection over union on 79 external Copernicus emergency activations from 0.57
+to 0.64 for water and, on the 77 of them with mapped flooding, from 0.32 to 0.35 for flooded area. The gain
+holds without a classification threshold and under the benchmark's own protocol, which differences pre-
+and post-event maps. It needs correctly located terrain: elevation and slope recover a quarter of it at the
+event level, and HAND displaced by about 700\,m or taken from another flood recovers none. On Sen1Floods11's
+own test tiles the gain is near zero, and its ten test events are too few to show whether holding out each
+tile's event raises it.
+As a post-processing mask HAND recovers about a third of the gain on new floods; as a training loss, at
+most a quarter of the flood gain, in one of four variants.
+With few training events, a fine-tuned 101-million-parameter foundation model without HAND does not match
+the small U-Net with it, and with 159 training events HAND's flood-extent gain is no longer detectable.
+Where labelled floods are few, terrain is a cheap input, best judged on held-out floods.
 \end{abstract}
 
 \begin{IEEEkeywords}

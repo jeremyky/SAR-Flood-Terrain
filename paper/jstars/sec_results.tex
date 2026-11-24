@@ -4,7 +4,7 @@
 Tables and figures marked S are in the supplementary material.
 
 
-\subsection{The tested physics losses and masks do nothing; same-event splits hide the input gain}
+\subsection{On Sen1Floods11, losses and masks do nothing and the input gain is small}
 \label{sec:loeo}
 
 We first hold out each of the 11 Sen1Floods11 events in turn (Table~S1). The physics losses change
@@ -12,34 +12,31 @@ held-out IoU by less than 0.007, because trained models already respect the cons
 physics loss they violate HAND monotonicity on only 0.2--0.5\% of pixel pairs. The first monotonicity loss
 compared 4-neighbours at 10\,m, but HAND is a 30-m product resampled to 10\,m, so only 9\% of neighbour
 pairs differ by the 1\,m needed to qualify and the loss term stayed near $3\cdot10^{-4}$. Comparing pixels
-three apart (one HAND cell; 27\% of pairs qualify), with no margin and weight 1 or 10, the loss engages
-(weighted term 0.002--0.013 at the end of training) and cuts the violation rate (weight 10: SAR + HAND
-0.0022 → 0.0011, SAR only 0.0041 → 0.0029), yet held-out IoU does not move (−0.001 \ci{−0.006}{+0.004}).
-The null is not an implementation artefact. The HAND post-mask changes mean held-out IoU by less than
-0.003 for every variant (at most +0.015 on a single event), because models rarely predict flood above
-15\,m HAND anyway.
+three apart (one HAND cell; 27\% of pairs qualify), with no margin and weight 1 or 10, the loss engages and
+halves the violation rate at weight 10 (SAR + HAND 0.0022 → 0.0011), yet held-out IoU does not move
+(−0.001 \ci{−0.006}{+0.004}). The 15-m HAND post-mask changes mean held-out IoU by less than 0.003 for
+every variant, because these models rarely predict flood above 15\,m HAND.
 
-HAND as an input helps a little in LOEO: +0.018 \ci{−0.000}{+0.035} with 3 seeds and +0.025
-\ci{+0.005}{+0.045} with 5 (0.566 → 0.591), improving 8 of 11 events. In LOEO the gain sits almost entirely in
-the 0--1\,m HAND band, where 75--99\% of each event's flood lies: HAND helps the model place flood within
-low ground (on the external events it also removes false alarms on higher ground; Section~\ref{sec:transfer}). One loss is consistent: Somalia, flat
-and arid, where every pixel is within a few metres of drainage, so HAND carries no information and
-pushes the model toward flood everywhere.
+HAND as an input helps a little in LOEO: +0.025 \ci{+0.005}{+0.045} with 5 seeds (0.566 → 0.591; +0.018
+with 3), improving 8 of 11 events, almost entirely in the 0--1\,m HAND band where 75--99\% of each event's
+flood lies. One loss is consistent: Somalia, flat and arid, where every pixel is within a few metres of
+drainage, so HAND carries no information and pushes the model toward flood everywhere.
 
-The usual Sen1Floods11 evaluation hides this effect (Fig.~\ref{fig:overview}a). On the official split,
-whose test tiles come from the training events, HAND adds +0.007 ± 0.008 pooled IoU (0.671 → 0.679; mean
-± standard deviation over 3 seeds); on its Bolivia hold-out, an event absent from training, it adds
-+0.128 ± 0.072 (0.556 → 0.685; per seed +0.160, +0.046, +0.179). Bolivia is a single event, but the
-contrast is the motivation for this study in miniature: an in-event split measures a different quantity
-from transfer to a new flood (the external test below also changes dataset; Section~\ref{sec:discussion}). Eleven events are too few to resolve the LOEO gain precisely; the next
-section tests on 79 external events.
+On the official split, whose test tiles come from the training events, HAND adds +0.008 ± 0.007 pooled
+IoU (0.671 → 0.679; mean ± standard deviation over 5 seeds); on its Bolivia hold-out, a single event absent
+from training, +0.105 ± 0.074 (0.567 → 0.673; per seed +0.008 to +0.179). To separate the split from the
+test data, we scored the same 90 official test tiles with the leave-one-event-out models that held each
+tile's event out (pre-registered; Fig.~\ref{fig:overview}a, Table~S10). In event-mean IoU the gain is
++0.001 with the event in training and +0.017 with it held out, larger on 8 of 10 events, but the
+difference, +0.016 \ci{−0.009}{+0.045}, is not resolved: ten events cannot show whether a same-event split
+understates the gain. The next section tests on 79 external events.
 
 \subsection{Transfer to 79 unseen events: HAND helps clearly}
 \label{sec:transfer}
 
 \begin{table}[t]
-\caption{Trained on all 11 Sen1Floods11 events (3 seeds), tested on GEOID-Flood test. Mean event IoU;
-paired Δ with 95\% CI over events; Wilcoxon $p$.}
+\caption{Trained on all 11 Sen1Floods11 events (5 seeds), tested on GEOID-Flood test. Mean event IoU, SAR →
+SAR + HAND; paired Δ with two-way 95\% CI over seeds and events; Wilcoxon $p$ over events.}
 \label{tab:transfer}
 \centering
 \footnotesize
@@ -49,20 +46,21 @@ paired Δ with 95\% CI over events; Wilcoxon $p$.}
 \toprule
 Model & Labels & IoU & Δ (95\% CI) & $p$ & Improved \\
 \midrule
-U-Net & all water & 0.574 → 0.635 & +0.061 [+0.043, +0.080] & $<10^{-4}$ & 69/79 \\
-U-Net & flood only & 0.317 → 0.349 & +0.032 [+0.019, +0.047] & $<10^{-4}$ & 57/77 \\
-ResNet-34 & all water & 0.581 → 0.618 & +0.036 [+0.018, +0.056] & $<10^{-4}$ & 55/79 \\
-ResNet-34 & flood only & 0.313 → 0.335 & +0.022 [+0.008, +0.037] & $4\cdot10^{-4}$ & 53/77 \\
+U-Net & all water & 0.572 → 0.635 & +0.063 [+0.044, +0.085] & $<10^{-4}$ & 68/79 \\
+U-Net & flood only & 0.317 → 0.350 & +0.032 [+0.019, +0.048] & $<10^{-4}$ & 57/77 \\
+ResNet-34 & all water & 0.584 → 0.615 & +0.031 [+0.010, +0.054] & 0.001 & 49/79 \\
+ResNet-34 & flood only & 0.315 → 0.331 & +0.016 [−0.001, +0.033] & 0.02 & 48/77 \\
 \bottomrule
 \end{tabular}}
 \end{table}
 
 Trained on all 11 Sen1Floods11 events and tested on GEOID-Flood, HAND helps clearly
-(Table~\ref{tab:transfer}): mean event IoU rises from 0.574 to 0.635 for all water and from 0.317 to 0.349
-for flooded water, improving 69 of 79 and 57 of 77 events. HAND raises precision as well as recall (U-Net,
-all water: precision 0.720 → 0.796, recall 0.723 → 0.752). The pretrained ResNet-34 is no better than the
-plain U-Net, and its HAND gain is smaller but clear. With 79 events, which events gain is consistent
-across backbones ($\rho = 0.72$ all water, 0.54 flood only), unlike the 11-event LOEO ($\rho = 0.07$).
+(Table~\ref{tab:transfer}): mean event IoU rises from 0.572 to 0.635 for all water and from 0.317 to 0.350
+for flooded water, improving 68 of 79 and 57 of 77 events. HAND raises precision as well as recall (U-Net,
+all water: precision 0.738 → 0.794, recall 0.704 → 0.753). The ImageNet-pretrained ResNet-34 does not beat
+the plain U-Net, and its HAND gain is smaller: clear for all water, unresolved for flooded water (CI
+reaching zero). With 79 events, which events gain is consistent across backbones ($\rho = 0.79$ all water,
+0.69 flood only), unlike the 11-event LOEO ($\rho = 0.07$).
 
 \emph{Not a calibration shift.} Models trained on Sen1Floods11 are over-confident on GEOID-Flood (best
 pooled thresholds 0.52--0.92 over seeds and backbones, for both input sets), so a fixed threshold of 0.5
@@ -74,31 +72,40 @@ chosen on the test set and so an upper bound for any recalibration applied to bo
 best-threshold IoU gains +0.028 and +0.040, all CIs above zero.
 
 \emph{GEOID-Flood protocol.} Under GEOID-Flood's own pre/post protocol (Section~\ref{sec:methods}), the
-Sen1Floods11-trained U-Net scores a pooled \iouf{} of 0.396 ± 0.016 (SAR) and 0.468 ± 0.012 (+ HAND), Δ
-+0.072 \ci{+0.031}{+0.123}; ResNet-34 goes from 0.401 to 0.425, +0.025 \ci{−0.013}{+0.071} (two-way CIs).
+Sen1Floods11-trained U-Net scores a pooled \iouf{} of 0.390 ± 0.017 (SAR) and 0.465 ± 0.011 (+ HAND), Δ
++0.074 \ci{+0.035}{+0.121}; ResNet-34 goes from 0.401 to 0.422, +0.021 \ci{−0.013}{+0.058} (two-way CIs).
 Trained on about 380 chips from 11 events, the U-Net with HAND falls within the range GEOID-Flood reports
-for single-image Sentinel-1 models trained on its 159 events (0.41--0.48), and equals our own
+for single-image Sentinel-1 models trained on its 159 events (0.41--0.48), and matches our own
 GEOID-trained U-Net (0.469; Section~\ref{sec:geoid}).
 
+\emph{Masks and losses on new floods.} Unlike in LOEO, the HAND post-mask helps the SAR-only model here
+(pre-registered; Table~S11): setting water above 5--20\,m HAND to dry raises event-mean IoU by +0.010 to
++0.015 for flooded water and +0.018 to +0.021 for all water, all CIs above zero: a third to a half of the
+input gain for flooded water, a third for all water and a tenth under the protocol (pooled +0.007 to +0.010
+against +0.074). The input does more than the mask: SAR + HAND
+beats SAR only with the best mask by +0.017 \ci{+0.005}{+0.032} for flooded water (exploratory), and masking
+the HAND model adds at most +0.005. Of the four physics losses (pre-registered, 3 seeds), only the strongest,
+monotonicity at a 30-m stride and weight 10, raises flooded-water IoU, by +0.009 \ci{+0.003}{+0.017} (53 of
+77 events): about as much as a 20-m mask and a quarter of the input gain, with a lower bound in the range we
+call suggestive. Its all-water and protocol changes are not resolved (+0.002 and +0.008), and the
+stride-1 monotonicity loss lowers all-water IoU by 0.011 (Table~S11).
 
-\emph{Where it helps.} The all-water gain grows with terrain variation (Fig.~S2): its
-Spearman correlation is +0.48 with median HAND, +0.47 with median slope and +0.42 with relief
-(Benjamini--Hochberg-adjusted $p \le 0.001$), and it falls with the event's water and wetland fraction.
-The flood-only trend is weaker (median HAND $\rho = +0.21$, adjusted $p = 0.15$). The gain is not a
-regional artefact: 50 of the 79 test events are in Europe, but the gain does not differ between Europe
-and elsewhere (flood only: $p = 0.18$ U-Net, 0.81 ResNet-34). Resampling the 34--35 countries instead of
-the events leaves its two-way CI essentially unchanged (flood +0.032: \ci{+0.018}{+0.050} over events and
-seeds, \ci{+0.017}{+0.051} over countries and seeds; all water +0.061: \ci{+0.040}{+0.087} and
-\ci{+0.039}{+0.089}). Stratifying pixels (pre-registered as descriptive; Table~S8) shows where the gain occurs, though not why,
-since strata are tied to geography and flood type. For flooded water the
-pooled gain is largest at 1--5\,m HAND (about +0.09) and smaller in the 0--1\,m band (+0.04), where most
-flood water lies, because HAND removes false alarms on higher ground: the false-alarm rate falls from 0.77\%
-to 0.19\% at 5--10\,m HAND and from 0.62\% to 0.02\% above 20\,m. On slopes steeper than 20\textdegree,
-where radar shadow and layover mimic water, all-water IoU rises from 0.065 to 0.174. The pooled flood gain is positive
-in tree cover, grassland, cropland, built-up areas (+0.028 \ci{+0.005}{+0.058}; false alarms 0.54\% →
-0.44\%) and bare ground (false alarms 31\% → 23\%), uncertain in herbaceous wetland (+0.002
-\ci{−0.019}{+0.022}); in mangroves (seven events) HAND lowers all-water IoU (−0.060 \ci{−0.088}{−0.038}). Fig.~\ref{fig:tiles} shows typical gains on
-a floodplain and in mountains, and the main failure, discussed in Section~\ref{sec:failures}.
+
+\emph{Where it helps.} The all-water gain grows with terrain variation (Fig.~S2; Spearman $\rho$ +0.44
+with median HAND, +0.41 with median slope, +0.36 with relief, Benjamini--Hochberg-adjusted $p \le 0.008$)
+and falls with the event's water and wetland fraction; the flood-only trend is weak (median HAND $\rho =
++0.15$, adjusted $p = 0.39$). 50 of the 79 test events are in Europe, but the gain does not differ between
+Europe and elsewhere (flood only: $p = 0.97$ U-Net, 0.42 ResNet-34), and resampling the 34--35 countries
+instead of the events leaves its CI essentially unchanged (pre-registered, seeds 0--2; Table~S8). Pixel
+strata (pre-registered as descriptive, seeds 0--2; Table~S8) show where the gain occurs, though not why,
+since strata are tied to geography and flood type. For flooded water the pooled gain is largest at
+1--5\,m HAND (about +0.09) and smaller in the 0--1\,m band (+0.04), where most flood water lies, because
+HAND removes false alarms on higher ground (false-alarm rate 0.62\% → 0.02\% above 20\,m). On slopes
+steeper than 20\textdegree, where radar shadow and layover mimic water, all-water IoU rises from 0.065 to
+0.174. The pooled flood gain is clear in tree cover, grassland, cropland, built-up and bare areas and
+unresolved in shrubland, herbaceous wetland and permanent water; in mangroves (seven events) HAND lowers
+all-water IoU. Fig.~\ref{fig:tiles} shows typical gains on a
+floodplain and in mountains, and the main failure, discussed in Section~\ref{sec:failures}.
 
 \begin{figure*}[t]
 \centering
@@ -135,11 +142,10 @@ Is the transfer gain specific to HAND, or would any terrain input do? We fixed t
 the same U-Net with DEM and slope instead of HAND, and with all three (Table~\ref{tab:transfer_ablation},
 Fig.~\ref{fig:overview}b). DEM and slope recover only about a quarter of HAND's event-mean flood gain
 (+0.008, CI including zero, against +0.032) and little of its all-water gain, and HAND beats them on both,
-clearly for all water (+0.047 \ci{+0.010}{+0.099}, 68 of 79 events) and, for flood extent, with a CI close
-to zero (+0.024 \ci{+0.005}{+0.048}, 55 of 77). Pooled over all pixels, which weights large events, DEM
-and slope do better (+0.044 of HAND's +0.072 under the protocol): relief alone helps on the largest
-floods, while HAND's drainage structure is what helps across events. Adding DEM and slope to HAND changes
-nothing.
+clearly for all water (68 of 79 events) and, for flood extent, suggestively (CI lower bound +0.005; 55 of 77). Pooled
+over all pixels, which weights large events, DEM and slope recover three-fifths of the protocol gain
+(+0.044 of +0.072): relief alone helps on the largest floods, while HAND's drainage structure is what helps
+across events. Adding DEM and slope to HAND changes nothing.
 
 This differs from GEOID-Flood training (Table~S2). Trained on 20 GEOID-Flood events, DEM and slope recover
 about two-thirds of HAND's flood gain (+0.021 vs.\ +0.032) and nine-tenths of its all-water gain, and HAND's
@@ -187,11 +193,11 @@ perturbations of the HAND input and one training control before running them (Ta
 Both hypotheses were supported. With HAND from a tile of another event the trained model becomes much worse
 than SAR only (flood −0.061, all water −0.122), so it relies on HAND's content; shifted by 500\,m in both
 axes (about 700\,m), the event-level gain disappears (+0.003 flood, −0.003 all water). A model trained and tested with another
-event's HAND, which sees realistic HAND values that carry no information about the scene, gains nothing
-(−0.005 \ci{−0.015}{+0.006} flood): the gain is not a side effect of having a terrain-like channel. A
+event's HAND, which sees realistic HAND values that carry no information about the scene, gains nothing:
+the gain is not a side effect of having a terrain-like channel. A
 100-m misregistration keeps most of the flood gain (+0.025) but halves the all-water gain, and blurring
 away detail below about 250\,m removes the gain, so fine drainage structure matters. Pooled over all pixels,
-the 500-m shift keeps about two-thirds of the flood gain (+0.050 \ci{+0.020}{+0.083} of +0.074; Table~S9), as large low-lying
+the 500-m shift keeps about two-thirds of the flood gain (+0.050 of +0.074; Table~S9), as large low-lying
 areas stay low after a shift. Together with Table~\ref{tab:transfer_ablation}, this indicates that the gain comes
 from correctly located, spatially detailed height above drainage across events, not from the extra
 channel and not only from relief, which helps mainly on the largest low-lying floods.
@@ -376,8 +382,8 @@ Change detection & 159 & 0.463 & 0.491 & +0.029 [−0.011, +0.057] & +0.005 \\
 \end{tabular}}
 \end{table}
 
-A trained change model is no better than differencing two single-image maps (without HAND: −0.014
-\ci{−0.069}{+0.037} at 159 events, +0.020 \ci{−0.048}{+0.098} at 20), but it is much less sensitive to
+A trained change model is no better than differencing two single-image maps (without HAND: −0.014 at 159
+events, +0.020 at 20, CIs including zero), but it is much less sensitive to
 which 20 events it is trained on (standard deviation over draws 0.041 vs.\ 0.090). With the pre-event
 image, HAND matters less at 20 events (+0.024 vs.\ +0.066, no longer significant) and about as much at 159
 (+0.029 vs.\ +0.021); the event-mean gains are near zero. Plausibly the pre-event image supplies part of what
@@ -399,18 +405,18 @@ contributes 1.37\,M of the 1.56\,M extra false-positive pixels on shared activat
 rule before computing any outcome: a tile is \emph{flat} when the 90th percentile of its valid HAND is below
 2\,m, and flat tiles take the SAR-only model's prediction from the same seed or draw (5\% of test tiles, in
 28 of 80 events; no retraining or tuning). The primary outcome, pooled \iouf{} under the protocol on
-unseen activations, does not improve (gated minus ungated: −0.016 \ci{−0.047}{+0.001} at 20 events, −0.003
-\ci{−0.007}{+0.001} at 159; Table~S6), and on all 77 test events at 20 training events the gate lowers it
-(−0.012 \ci{−0.030}{−0.001}). Gating more tiles costs more (exploratory: threshold 5\,m −0.022
-\ci{−0.053}{−0.002}): HAND helps on flat tiles on average, and the failure is concentrated in a few events,
+unseen activations, does not improve (gated minus ungated: −0.016 at 20 events, −0.003 at 159, CIs
+including zero; Table~S6), and on all 77 test events at 20 training events the gate lowers it (−0.012
+\ci{−0.030}{−0.001}). Gating more tiles costs more (exploratory, threshold 5\,m: −0.022): HAND helps on
+flat tiles on average, and the failure is concentrated in a few events,
 not a property of flat tiles.
 
 \emph{HAND dropout.} For the second failure, which puts real water at high HAND, a standard remedy is
 modality dropout~\cite{neverova2016moddrop}: during training the HAND channel of a random 50\% of tiles is
 replaced by −1 (outside the normalized range), and HAND is always present at test time. Fixed before
 training (Table~S7), it does not help: dropout raises no mean gain by more than +0.001, and with 11 training
-events it removes a quarter to two-fifths of HAND's gain over SAR only (flood event-mean −0.008
-\ci{−0.016}{−0.001}, all water −0.020 \ci{−0.036}{−0.009}). At 159 events it shrinks the model toward SAR
+events it removes a quarter to two-fifths of HAND's gain over SAR only (flood event-mean −0.008, all water
+−0.020). At 159 events it shrinks the model toward SAR
 only: fewer large losses (protocol tail 5 → 2 events) but also fewer gains (events improved 25 → 21). The
 Swedish tile recovers partly (0.30 → 0.46), but the Swedish event as a whole gets worse in every setting,
 because HAND helps most of that event's tiles.
