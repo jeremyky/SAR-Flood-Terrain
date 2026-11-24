@@ -25,7 +25,7 @@ from GEOID-Flood:
   small U-Net with HAND beats TerraMind without it.
 
 Also: as a post-processing mask HAND recovers about a third of the input gain on new floods, and as a
-physics loss at most a quarter of the flood gain (one of four variants); within Sen1Floods11 neither does
+physics loss about a quarter of the flood gain (one of four variants); within Sen1Floods11 neither does
 anything. With 159 training events the flood-extent gain is no longer detectable; two remedies for HAND's
 failure cases (gating on flat ground, HAND dropout) do not help. Fifteen analyses were pre-registered
 (`PREREGISTRATIONS.md`).

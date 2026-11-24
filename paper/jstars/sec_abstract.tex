@@ -9,8 +9,8 @@ and post-event maps. It needs correctly located terrain: elevation and slope rec
 event level, and HAND displaced by about 700\,m or taken from another flood recovers none. On Sen1Floods11's
 own test tiles the gain is near zero, and its ten test events are too few to show whether holding out each
 tile's event raises it.
-As a post-processing mask HAND recovers about a third of the gain on new floods; as a training loss, at
-most a quarter of the flood gain, in one of four variants.
+As a post-processing mask HAND recovers about a third of the gain on new floods; as a training loss, in one
+of four variants, about a quarter of the flood gain.
 With few training events, a fine-tuned 101-million-parameter foundation model without HAND does not match
 the small U-Net with it, and with 159 training events HAND's flood-extent gain is no longer detectable.
 Where labelled floods are few, terrain is a cheap input, best judged on held-out floods.

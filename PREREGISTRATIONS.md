@@ -43,7 +43,7 @@ Fixed 2026-11-21 (commit 8b9a359), before any gated outcome was computed.
 > threshold sweep is exploratory only. Script: `scripts/hand_gate.py`.
 
 **Outcome: not supported.** Gated − ungated, protocol, unseen activations: 20 events −0.016
-[−0.047, +0.001]; 159 events −0.003 [−0.007, +0.001]. Paper Section V-H, Table S6.
+[−0.047, +0.001]; 159 events −0.003 [−0.007, +0.001]. Paper Section V-G, Table S6.
 
 ## 3. HAND modality dropout
 
@@ -62,7 +62,7 @@ Fixed 2026-11-21 before training (commit 6eb1e69); amendment before any result (
 > it on GEOID test (79 events) with the same outcomes.
 
 **Outcome: not supported.** Dropout raises no mean gain by more than +0.001; with 11 training events it
-removes part of HAND's gain (flood event-mean −0.008 [−0.016, −0.001]). Paper Section V-H, Table S7.
+removes part of HAND's gain (flood event-mean −0.008 [−0.016, −0.001]). Paper Section V-G, Table S7.
 
 ## 4. Terrain ablation on the Sen1Floods11 → GEOID-Flood transfer
 
