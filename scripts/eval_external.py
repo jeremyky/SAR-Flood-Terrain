@@ -2,7 +2,8 @@
 
 For every run directory given (containing config.yaml + best.pt), scores all chips under
 --data-root and writes <run>/external_<name>/metrics.json (per-event and pooled summaries,
-raw and HAND-masked) and chips.csv.
+raw and HAND-masked) and chips.csv. With --post-mask T the scored prediction is the HAND post-mask itself (flood
+removed wherever HAND > T metres), so chips.csv holds the masked counts; use a distinct --name for it.
 
     python scripts/eval_external.py --data-root /scratch/$USER/floodseg/data/geoid_test --name geoid_test \
         /scratch/$USER/floodseg/runs/all/*/seed*
@@ -35,6 +36,8 @@ def main() -> None:
     parser.add_argument("--hand-perturb", default=None,
                         help="perturb the HAND input at test time: shift:<px>, blur:<px> or swap (see floodseg.data); "
                              "default: the run's own data.hand_perturb, if any")
+    parser.add_argument("--post-mask", type=float, default=None,
+                        help="score the HAND post-mask at this threshold (m) instead of the raw prediction")
     args = parser.parse_args()
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     chips = [c for c in D.all_chips(args.data_root) if c.event not in args.exclude_events]
@@ -52,7 +55,11 @@ def main() -> None:
         perturb = args.hand_perturb or cfg["data"].get("hand_perturb")
         loader = DataLoader(D.Sen1Floods11(args.data_root, chips, channels, hand_perturb=perturb),
                             batch_size=args.batch_size, num_workers=args.workers)
-        trackers = evaluate(model, loader, device, cfg["eval"].get("threshold", 0.5), hand_mask=cfg["eval"].get("hand_mask"))
+        if args.post_mask is not None:
+            masked = evaluate(model, loader, device, cfg["eval"].get("threshold", 0.5), hand_mask=args.post_mask)
+            trackers = {"raw": masked["hand_mask"]}
+        else:
+            trackers = evaluate(model, loader, device, cfg["eval"].get("threshold", 0.5), hand_mask=cfg["eval"].get("hand_mask"))
         out.mkdir(exist_ok=True)
         (out / "metrics.json").write_text(json.dumps({k: t.summary() for k, t in trackers.items() if t.rows}, indent=1))
         rows = trackers["raw"].per_chip()

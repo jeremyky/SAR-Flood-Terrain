@@ -15,7 +15,7 @@ conda activate "${FLOODSEG_ENV:-$HOME/.conda/envs/floodseg}"
 cd "$SLURM_SUBMIT_DIR"
 export PYTHONPATH="$SLURM_SUBMIT_DIR/src${PYTHONPATH:+:$PYTHONPATH}"   # this checkout's floodseg
 S=/scratch/$USER/floodseg
-TRAIN=$S/data/geoid_trainval/splits/train.txt
+TRAIN=${TRAIN:-$S/data/geoid_trainval/splits/train.txt}   # train_valid.txt: unseen by train and validation (#11)
 OUT=${OUT:-$S/reports/paper_$(date +%Y%m%d)}
 mkdir -p $OUT
 CONFIRM=$(echo geoid_tm/e{20,40,159}/seed{3,4,5})  # pre-registered confirmation draws (§5.4)

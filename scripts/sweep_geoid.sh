@@ -10,6 +10,8 @@
 #                                             # background), +/- HAND; needs slurm/prepare_geoid_cd.sbatch; same layout as ablate
 #   bash scripts/sweep_geoid.sh dropout       # HAND modality dropout (p = 0.5, training only), same layout as ablate;
 #                                             # scored with both external eval and the GEOID-Flood protocol
+#   bash scripts/sweep_geoid.sh epochs        # 10/20/40 events, draws 0-4, 30 epochs instead of the fixed step budget
+#                                             # -> runs/geoid_lc_ep30/ (PREREGISTRATIONS.md #14)
 #   FM_LR=5e-5 bash scripts/sweep_geoid.sh fm # TerraMind-1.0-base (S1GRD) +/- HAND, same layout as ablate; needs the
 #                                             # floodseg-fm env (env/README-fm.md); FM_LR from the validation-only pilot
 # Each training job is followed by external evaluation on GEOID test (all water and flood only); change-detection
@@ -19,7 +21,7 @@
 #   python scripts/make_event_subsets.py --root ... --sizes 10 20 40 80 159 --draws 3 --tiles 500
 #   python scripts/make_event_subsets.py --root ... --sizes 20 40 159 --draws 3 --first-draw 3 --tiles 500
 set -euo pipefail
-MODE=${1:?full|curve|tiles|ablate|jrc|cd|fm|dropout}
+MODE=${1:?full|curve|tiles|ablate|jrc|cd|fm|dropout|epochs}
 ACCOUNT=${ACCOUNT:-uva-mira}
 ROOT=${FLOODSEG_ROOT:-/scratch/$USER/floodseg}
 R=$ROOT/runs; D=$ROOT/data
@@ -75,6 +77,8 @@ case $MODE in
   fm)     VARIANTS="fm_sar fm_sar_hand"; EXTRA="train.lr=${FM_LR:?set FM_LR}"
           export FLOODSEG_ENV=$HOME/.conda/envs/floodseg-fm
           group geoid 159 train 0 1 2; group geoid_lc 20 train 0 1 2 3 4 ;;
+  epochs) STEPS="train.num_validations=30"   # 30 epochs (geoid.yaml), as the 159-event runs; PREREGISTRATIONS.md #14
+          for s in 10 20 40; do group geoid_lc_ep30 $s train 0 1 2 3 4; done ;;
   dropout) VARIANTS="sar_hand_md"; EVAL=both
           group geoid 159 train 0 1 2; group geoid_lc 20 train 0 1 2 3 4 ;;
 esac

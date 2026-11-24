@@ -13,7 +13,8 @@ Per run it writes <run>/external_<name>/chips.csv with confusion counts, per chi
   flood_diff  predicted flood = water(post) & ~water(pre)  vs  label == 2   (the paper's protocol)
   flood_post  predicted flood = water(post)                vs  label == 2   (no pre image; permanent water = FP)
   water_post  predicted water = water(post)                vs  label in {1, 2}
-Pixels count only where the label is valid and both images are complete.
+Pixels count only where the label is valid and both images are complete. With --post-mask T both water maps are
+HAND post-masked (water removed wherever HAND > T metres) before differencing (single-image runs only).
 Change-detection runs (inputs vv_pre/vh_pre, trained on flooded water vs rest; scripts/sweep_geoid.sh cd) see both
 images at once, so their output is the flood map itself: flood_diff = their prediction vs label == 2, on the same
 chips and pixels (flood_post and water_post do not apply). --post must then hold S1PreHand (prepare_geoid_cd.sbatch).
@@ -63,6 +64,8 @@ def evaluate_runs(args: argparse.Namespace) -> None:
         model = build_model(len(channels), cfg.get("model", {})).to(device).eval()
         model.load_state_dict(torch.load(run / "best.pt", map_location=device))
         change = any(ch.endswith("_pre") for ch in channels)  # pre + post inputs: the output is the flood map
+        if change and args.post_mask is not None:
+            raise SystemExit("--post-mask applies to single-image runs only")
         # for a change model the pre loader only supplies the pre-image validity mask (no forward pass)
         loaders = [DataLoader(D.Sen1Floods11(root, chips, ch), batch_size=args.batch_size, num_workers=args.workers)
                    for root, ch in ((args.post, channels), (args.pre, ("vv", "vh") if change else channels))]
@@ -74,7 +77,10 @@ def evaluate_runs(args: argparse.Namespace) -> None:
                 for batch in (post,) if change else (post, pre):
                     with torch.autocast(device.type, dtype=torch.bfloat16, enabled=device.type == "cuda"):
                         prob = torch.sigmoid(model(batch["x"].to(device)).float()).cpu().numpy()[:, 0]
-                    water.append(prob >= thr)
+                    w = prob >= thr
+                    if args.post_mask is not None:
+                        w &= ~(np.nan_to_num(batch["hand"][:, 0].numpy(), nan=0.0) > args.post_mask)
+                    water.append(w)
                 y_post, y_pre = post["y"][:, 0].numpy(), pre["y"][:, 0].numpy()
                 for i, chip in enumerate(post["chip"]):
                     valid = (y_post[i] >= 0) & (y_pre[i] >= 0)  # label valid and both images complete
@@ -180,6 +186,7 @@ def main() -> None:
     e.add_argument("--name", default="geoid_proto")
     e.add_argument("--batch-size", type=int, default=2)
     e.add_argument("--workers", type=int, default=6)
+    e.add_argument("--post-mask", type=float, default=None, help="HAND post-mask threshold (m) applied to both water maps")
     r = sub.add_parser("report")
     r.add_argument("--runs", type=Path, required=True)
     r.add_argument("--name", default="geoid_proto")

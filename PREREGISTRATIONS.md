@@ -1,6 +1,6 @@
 # Pre-registered analyses
 
-Eight analyses were fixed in writing, with their analysis code, before their outcomes were computed. The
+Fifteen analyses were fixed in writing, with their analysis code, before their outcomes were computed. The
 texts below are copied from the study's lab notebook as written at the time (lightly formatted). The
 commit hashes refer to the development repository in which they were recorded; its timestamped history
 is the evidence that each plan predates its result and is available from the authors on request.
@@ -156,3 +156,80 @@ Table S8.
 
 **8.** Country-cluster CIs are essentially the event-level ones (U-Net flood +0.032 [+0.017, +0.051] vs
 [+0.018, +0.050], 34 countries, as one country has no flood event; all water +0.061 [+0.039, +0.089] vs [+0.040, +0.087]). Paper Section V-B.
+
+## 9-15. Third review (fixed 2026-11-23, before any of these runs or analyses)
+
+Post hoc in the sense that they answer an external review of the preprint draft (tagged `preprint-draft-2026-11-23`)
+rather than a hypothesis we held before seeing results; fixed here before any outcome was computed. Seen beforehand:
+every result in the draft (including the leave-one-event-out gain, +0.025 event-mean with 5 seeds, and the
+official-split gain, +0.007 pooled with 3 seeds); the overlap counts of #11 at activation level (15 of 80 test
+activations have AoIs in GEOID-Flood validation, only EMSR586 of them none in train, so "unseen" shrinks from 38 to
+37 flood and 39 to 38 water events); the epochs per learning-curve subset (#14). The new scripts were smoke-tested on
+two tiles of one event (EMSR162) with one SAR-only model, and the matched report (#9) with SAR only paired against
+itself, which shows no HAND outcome. Unless stated otherwise, CIs are two-way bootstraps over seeds and test events,
+and results are reported whatever they show.
+
+### 9. Same tiles, same metric: does HAND help more when the tile's event is held out?
+
+The 90 tiles of Sen1Floods11's official test split come from 10 events. Each is scored by the official-split models
+(trained on other tiles of the same 10 events) and by the leave-one-event-out model that held its event out; SAR only
+and SAR + HAND, seeds 0-4 in both settings (official-split seeds 3-4 are new). Per event, IoU (all water, hand labels)
+is pooled over its official test tiles; the gain is SAR + HAND minus SAR only from the same seed. **Primary:** event-mean
+gain with the event held out minus event-mean gain with the event in training, two-way bootstrap (events shared by
+both settings, seeds resampled within each). **Secondary:** the same difference in IoU pooled over the 90 tiles; the
+number of events where the held-out gain is larger. Script: `scripts/matched_split_report.py`.
+**Hypothesis:** the difference is positive (95% CI above zero). **Consequence fixed now:** if the CI includes zero,
+the title, abstract and introduction stop saying that same-event splits hide the gain and report only the measured
+contrast.
+
+### 10. Physics losses and HAND post-masks on the Sen1Floods11 → GEOID-Flood transfer
+
+Train `sar_mono`, `sar_ceil`, `sar_mono3_w1`, `sar_mono3_w10` (the leave-one-event-out loss variants, Table S1) on
+all 11 Sen1Floods11 events, seeds 0-2. Score HAND post-masks at 5, 10, 15 and 20 m (water removed where HAND exceeds the
+threshold; no retraining) on the SAR-only and SAR + HAND models, seeds 0-4. Outcomes as Table IV (all 77/79 GEOID test
+events): event-mean IoU flooded only and all water, pooled IoU_flood under the GEOID-Flood protocol (masks applied to
+both water maps before differencing). Pairs: each loss variant − SAR only; each SAR-only mask − SAR only; each SAR +
+HAND mask − SAR + HAND. Script: `scripts/revision_transfer_report.py losses|masks`. **Consequence fixed now:** the
+statement that HAND as a loss or mask does nothing is kept for the transfer only if no loss or mask improves SAR only
+in flood or all-water event-mean IoU with a CI above zero; otherwise every such gain is reported next to the input
+gain.
+
+### 11. Overlap of GEOID-Flood test events with train and validation
+
+Descriptive counts: test activations with AoIs in train and in validation; test tiles whose footprint equals that of a
+train or validation tile, in any activation (`scripts/split_overlap_audit.py`). Sensitivity: every result of
+GEOID-Flood-trained models reported on unseen activations (Tables VII-IX, S2, S4-S7 and the confirmation test #1) is
+recomputed with unseen meaning unseen by train *and* validation (`--unseen-only`/`--train-list` set to train + valid;
+`TRAIN=... sbatch slurm/paper_reports.sbatch` and the scripts' `--train-list`). The pre-registered primaries stay as
+registered; the sensitivity results are reported next to them. The Sen1Floods11-trained transfer uses no GEOID-Flood
+data for training or checkpoint selection, so it is unaffected.
+
+### 12. TerraMind learning rate on the Sen1Floods11 → GEOID-Flood transfer
+
+`fm_sar` and `fm_sar_hand` at learning rates 1e-5, 2e-5, 1e-4 and 2e-4 (5e-5 exists), seeds 0-2, otherwise as #5. For
+each variant the learning rate is chosen by the mean over seeds of its best Sen1Floods11 validation IoU (the 15%
+validation split of the 11 events), never by test results. **Primary:** Table VI's comparisons (TM + HAND − TM, TM −
+U-Net, U-Net + HAND − TM) at the selected learning rates; all learning rates reported in the supplement. Script:
+`scripts/revision_transfer_report.py fm-lr`. **Consequence fixed now:** if U-Net + HAND − TM no longer has a CI above zero
+on flood event-mean IoU, the claim that the small U-Net with HAND beats TerraMind is dropped.
+
+### 13. Do the reference labels look HAND-masked? (descriptive)
+
+Per event, for GEOID-Flood test (all water; flooded only) and Sen1Floods11 hand labels: the share of valid area and
+of labelled water with HAND above 5, 10, 15 and 20 m, the 99th percentile of labelled-water HAND, and a cut-off flag
+(at least 1,000 water pixels within 1 m below the threshold, at least 1,000 valid pixels within 1 m above it, and no
+water there). `scripts/label_hand_check.py`. Interpreted together with what the labelling procedures document.
+
+### 14. Learning curve at a fixed number of epochs
+
+The learning curve fixes the optimizer steps (32,670), so small subsets are passed over many more times (10 events:
+about 360-1,020 epochs; 20: 150-400; 159: 30). Retrain SAR only and SAR + HAND on the 10-, 20- and 40-event subsets
+(draws 0-4, seed = draw) for 30 epochs, as the 159-event models (`bash scripts/sweep_geoid.sh epochs`), and score on
+GEOID test (flooded only, all water). Reported: the HAND gain per size (event-mean and pooled, unseen activations by
+train, and by train and validation) next to the fixed-step gains; descriptive, no test.
+
+### 15. Five seeds for the headline transfer
+
+Seeds 3-4 for the U-Net and ResNet-34, SAR only and SAR + HAND, trained on all 11 Sen1Floods11 events and scored on
+GEOID test (flooded only, all water) and under the protocol. Table III and Fig. 1 then report seeds 0-4 whatever they
+show. Tables registered with 3 seeds (#4-#8) stay at seeds 0-2.
