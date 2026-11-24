@@ -259,6 +259,19 @@ EMSR586 is in validation but not in train, so unseen by train and validation lea
 events. No test tile has exactly the footprint of any train or validation tile (0 of 2,635). Paper Section
 III; `reports/split_overlap_audit.txt`.
 
+**11 (sensitivity).** Every GEOID-Flood-trained result on unseen activations recomputed with unseen = absent from
+train and validation (`TRAIN=.../train_valid.txt` in `slurm/paper_reports.sbatch`, run on the RTX 3090 node;
+`reports/paper_trainvalid`, compared with `reports/paper_20261124` by `scripts/trainvalid_sensitivity.py`). Event-mean
+differences change by at most 0.0017 (equal-tiles control) and pooled differences by at most 0.006 (HAND vs. JRC at
+159 events). The only CIs that change side of zero already had a bound within 0.001 of it: TerraMind + HAND −
+TerraMind at 20 events, flooded event-mean, as computed by the relief-gate report ([−0.000, +0.069] → [+0.001,
++0.071]); the equal-tiles control at 80 events, pooled ([−0.001, +0.069] → [+0.001, +0.071]); and the unreported
+flood_post protocol variant at 159 events. Examples: 159 events flooded event-mean −0.001 [−0.019, +0.016]
+→ −0.001 [−0.019, +0.018]; 20 events +0.032 [+0.004, +0.065] → +0.033 [+0.004, +0.066]; protocol at 20 events
++0.066 [+0.019, +0.111] → +0.070 [+0.021, +0.115]; confirmation contrast +0.0025 [−0.007, +0.013], p = 0.37 →
++0.0025 [−0.008, +0.013], p = 0.37; relief gate at 20 events −0.016 [−0.047, +0.001] → −0.017 [−0.049, +0.001].
+No conclusion changes. Paper Section III, Table S14; `reports/trainvalid_sensitivity.csv`.
+
 **13.** No event is flagged as a cut-off at 5, 10, 15 or 20 m in either dataset. Of the 72 flood events with at
 least 1% of their area above 15 m HAND, 56 have labelled flood water there. Median share of labelled water above
 15 m: 0.15% (GEOID flood), 0.09% (GEOID all water), 0.01% (Sen1Floods11 hand labels); 99th percentile of

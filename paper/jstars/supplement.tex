@@ -406,6 +406,51 @@ nothing. Of the losses, only monotonicity at a 30-m stride and weight 10 improve
 CI above zero, in flooded-water IoU (on 53 of 77 events), by about as much as a 20-m mask; the stride-1
 monotonicity loss lowers all-water IoU (on 55 of 79 events).
 
+\section*{Unseen by training and validation}
+
+GEOID-Flood-trained models select their checkpoint on GEOID-Flood's validation split, and 15 test activations also
+have AoIs there; only EMSR586 has none in training. Table~\ref{tab:trainvalid} repeats the GEOID-Flood-trained
+results with ``unseen'' meaning absent from training and validation (37 flood / 38 all-water events) next to the
+reported definition (absent from training; 38/39). Over every comparison in the paper's report set, event-mean
+differences change by at most 0.002 and pooled differences by at most 0.006; the only CIs that change side of
+zero already had a bound within 0.001 of it (pre-registered \#11; \texttt{reports/paper\_trainvalid}).
+
+\begin{table}[H]
+\caption{HAND gain (or the stated difference) on unseen activations under the two definitions of unseen
+(GEOID-Flood training; two-way 95\% CIs over draws or seeds and test events; event counts flooded/all water).}
+\label{tab:trainvalid}
+\centering
+\resizebox{\ifdim\width>\linewidth\linewidth\else\width\fi}{!}{%
+\begin{tabular}{@{}lcc@{}}
+\toprule
+Result & Unseen by train (38/39) & Unseen by train and validation (37/38) \\
+\midrule
+159 events (Table~\ref{tab:geoid}), flooded, event-mean & −0.001 [−0.019, +0.016] & −0.001 [−0.019, +0.018] \\
+159 events, all water, event-mean & +0.023 [+0.004, +0.045] & +0.024 [+0.004, +0.045] \\
+159 events, flooded, pooled & +0.011 [−0.017, +0.037] & +0.012 [−0.018, +0.040] \\
+159 events, protocol pooled & +0.021 [−0.001, +0.043] & +0.022 [−0.001, +0.046] \\
+\midrule
+10 events, flooded, event-mean & +0.013 [−0.002, +0.028] & +0.014 [−0.001, +0.030] \\
+20 events, flooded, event-mean & +0.032 [+0.004, +0.065] & +0.033 [+0.004, +0.066] \\
+40 events, flooded, event-mean & +0.016 [−0.004, +0.038] & +0.017 [−0.004, +0.038] \\
+80 events, flooded, event-mean & +0.002 [−0.008, +0.012] & +0.002 [−0.008, +0.013] \\
+\midrule
+20 events, protocol pooled & +0.066 [+0.019, +0.111] & +0.070 [+0.021, +0.115] \\
+20 events, change detection, protocol pooled & +0.024 [−0.037, +0.085] & +0.024 [−0.037, +0.090] \\
+159 events, change detection, protocol pooled & +0.029 [−0.011, +0.057] & +0.030 [−0.009, +0.059] \\
+20 events, TerraMind, protocol pooled & +0.040 [+0.011, +0.070] & +0.042 [+0.012, +0.070] \\
+20 events, HAND vs DEM + slope, flooded & +0.011 [−0.005, +0.032] & +0.011 [−0.005, +0.033] \\
+159 events, JRC vs SAR only, flooded & −0.054 [−0.089, −0.024] & −0.055 [−0.091, −0.024] \\
+\midrule
+Relief gate minus no gate, 20 events, protocol & −0.016 [−0.047, +0.001] & −0.017 [−0.049, +0.001] \\
+Relief gate, 159 events, protocol & −0.003 [−0.007, +0.001] & −0.003 [−0.008, +0.001] \\
+HAND dropout minus HAND, 20 events, flooded & +0.001 [−0.017, +0.019] & +0.001 [−0.018, +0.019] \\
+HAND dropout, 159 events, flooded & +0.001 [−0.015, +0.017] & +0.001 [−0.015, +0.019] \\
+Confirmation test (\#1), contrast & +0.0025 [−0.007, +0.013], $p = 0.37$ & +0.0025 [−0.008, +0.013], $p = 0.37$ \\
+\bottomrule
+\end{tabular}}
+\end{table}
+
 \section*{Do the reference labels encode a HAND mask?}
 
 The Global Flood Monitoring product excludes pixels with HAND of 10\,m or more (15\,m in earlier versions,
