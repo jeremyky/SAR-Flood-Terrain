@@ -444,6 +444,42 @@ Events / none above & Median share & Cut-offs \\
 \end{tabular}}
 \end{table}
 
+\section*{Change detection with the pre-event image}
+
+GEOID-Flood provides a pre-event Sentinel-1 image for every tile, so a model can be given both images at
+once. Operationally, Sentinel-1's routine acquisitions usually supply a recent pre-event image of the same
+orbit, but seasonal changes in vegetation and soil moisture between the two dates add their own errors. We train the same U-Net on [VV, VH, VV\textsubscript{pre}, VH\textsubscript{pre}] (± HAND) to predict
+flooded water directly, with permanent water and background as negatives, i.e., GEOID-Flood's flood class.
+All 8,712 training tiles have a pre-event image; requiring both images removes 0.8\% of valid pixels. It
+is scored on exactly the tiles and pixels of the protocol-matched single-image numbers, so the rows of
+Table~\ref{tab:cd} are directly comparable.
+
+\begin{table}[H]
+\caption{HAND gain with and without the pre-event image (unseen activations; pooled \iouf{} under the
+GEOID-Flood protocol, mean over draws/seeds; Δ from confusion counts averaged over draws/seeds, two-way
+95\% CI; last column event-mean Δ).}
+\label{tab:cd}
+\centering
+\resizebox{\ifdim\width>\linewidth\linewidth\else\width\fi}{!}{%
+\begin{tabular}{@{}lccccc@{}}
+\toprule
+Model & Events & SAR & + HAND & Δ pooled (95\% CI) & Δ ev. \\
+\midrule
+Single image, differenced & 20 & 0.382 & 0.448 & +0.066 [+0.019, +0.111] & +0.036 \\
+Change detection & 20 & 0.404 & 0.426 & +0.024 [−0.037, +0.085] & +0.000 \\
+Single image, differenced & 159 & 0.475 & 0.496 & +0.021 [−0.001, +0.043] & +0.013 \\
+Change detection & 159 & 0.463 & 0.491 & +0.029 [−0.011, +0.057] & +0.005 \\
+\bottomrule
+\end{tabular}}
+\end{table}
+
+A trained change model is no better than differencing two single-image maps (without HAND: −0.014 at 159
+events, +0.020 at 20, CIs including zero), but it is much less sensitive to
+which 20 events it is trained on (standard deviation over draws 0.041 vs.\ 0.090). With the pre-event
+image, HAND matters less at 20 events (+0.024 vs.\ +0.066, no longer significant) and about as much at 159
+(+0.029 vs.\ +0.021); the event-mean gains are near zero. Plausibly the pre-event image supplies part of what
+HAND supplies with few training events: which dark, smooth surfaces were already there before the flood.
+
 \section*{Pre-registration record}
 
 \begin{table}[H]
@@ -458,8 +494,8 @@ external review of a draft of this paper; what had been seen before they were fi
 \# & Analysis & Paper & Fixed & Commit \\
 \midrule
 1 & HAND gain vs.\ training events at 500 tiles (confirmation test) & V-F & 2026-11-12 07:48 & c5616fa$^a$ \\
-2 & Relief gate & V-H & 2026-11-21 11:03 & 8b9a359$^a$ \\
-3 & HAND dropout & V-H & 2026-11-21 11:37 & 6eb1e69, b08389c$^a$ \\
+2 & Relief gate & V-G & 2026-11-21 11:03 & 8b9a359$^a$ \\
+3 & HAND dropout & V-G & 2026-11-21 11:37 & 6eb1e69, b08389c$^a$ \\
 4 & Terrain ablation on the Sen1Floods11 transfer & V-C & 2026-11-21 21:29 & 58cc5ad$^a$ \\
 5 & TerraMind on the Sen1Floods11 transfer & V-E & 2026-11-21 21:31 & 6f7aacf$^a$ \\
 6--8 & HAND perturbations; errors by stratum; country-cluster bootstrap & V-B, V-D & 2026-11-22 21:52 & 106706e \\

@@ -5,8 +5,8 @@
 The main model is a U-Net~\cite{ronneberger2015unet} with four levels, base width 32 and channel
 dropout 0.1 (7.8\,M parameters), trained from scratch. A ResNet-34 U-Net~\cite{he2016resnet} with
 ImageNet weights (segmentation-models-pytorch~\cite{iakubovskii2019smp}) is the second backbone.
-Section~\ref{sec:cd} adds a change-detection U-Net and Section~\ref{sec:fm} a TerraMind foundation
-model. Inputs are scaled with fixed, data-independent transforms so that every event is treated
+Section~\ref{sec:fm} adds a TerraMind foundation model and Section~\ref{sec:geoid} a change-detection
+U-Net. Inputs are scaled with fixed, data-independent transforms so that every event is treated
 identically: VV and VH backscatter are clipped to $[-30, 5]$\,dB, shifted by $+12.5$\,dB and divided by 7.5\,dB;
 HAND $h$ (metres) enters as $\log(1+h)/2$; the DEM enters as relief relative to the tile median, divided
 by 50\,m and clipped to $\pm 3$; slope is divided by 15\textdegree. Pixels with any missing input are
@@ -46,11 +46,9 @@ draws and report the mean over events with a 95\% confidence interval (CI). For 
 (Sections~\ref{sec:transfer}--\ref{sec:failures}) the CI is, unless stated otherwise, a two-way
 bootstrap~\cite{efron1993bootstrap} that resamples both seeds or draws and test events (4,000--10,000
 resamples), which accounts for training variance as well as event variance; for pooled IoU the bootstrap
-resamples the same two factors and recomputes the pooled counts. Protocol-matched pooled differences
-reported next to absolute \iouf{} values (Sections~\ref{sec:transfer}, \ref{sec:fm}, \ref{sec:geoid}
-and \ref{sec:cd}) are computed from confusion counts averaged over seeds or draws, so they can differ
-slightly from the difference of the mean per-seed pooled IoUs beside them; all other pooled differences
-are averages of per-seed differences. Average-precision CIs and the JRC comparisons in the Sen1Floods11
+resamples the same two factors and recomputes the pooled counts. Protocol pooled differences printed next to
+absolute \iouf{} values come from confusion counts averaged over seeds or draws and can differ slightly
+from the difference of those values; other pooled differences average per-seed differences. Average-precision CIs and the JRC comparisons in the Sen1Floods11
 transfer resample test events only, as noted where they appear. Where indicated, we add a Wilcoxon signed-rank
 test~\cite{wilcoxon1945} over events. Correlations between per-event gains and event descriptors use
 Spearman's $\rho$ with Benjamini--Hochberg correction~\cite{benjamini1995fdr}.

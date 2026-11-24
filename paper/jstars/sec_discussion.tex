@@ -12,23 +12,22 @@ official training split, is a single event. With ten events, a same-event split 
 rules out one of the size seen on held-out tiles; the external test, with 79 events, resolves it.
 
 \subsection{What makes HAND useful}
-The model uses what HAND says about the place. The event-level gain disappears when HAND is shifted by
-500\,m in each axis, blurred or taken from another flood, and a model trained on mismatched HAND gains
-nothing; DEM and slope recover only a quarter of it. HAND is height relative to the local drainage
+The model uses what HAND says about the place (Section~\ref{sec:mechanism}). HAND is height relative to the local drainage
 network, which relief and slope only approximate, and its position to within a few hundred metres and its
 detail at that scale matter. Where it helps is consistent with this: HAND removes false alarms on higher
 ground and on steep, shadowed slopes. Pooled over pixels, part of the gain survives a 500-m shift and DEM
 and slope recover more of it, plausibly because the largest floods cover broad low-lying plains that stay low after
 a shift and that relief alone identifies; the event-level gain, which weights every flood equally, depends
 on the finer drainage structure. Terrain priors say where water \emph{can} be; a permanent-water map says
-where it \emph{has been}, and with 159 training events it appears to teach the model to look for water only there
-(pooled flood recall 0.69 → 0.57 at unchanged precision). As a physics loss, by contrast, HAND adds little:
+where it \emph{has been}, and with 159 training events it appears to teach the model to look for water only there. As a physics loss, by contrast, HAND adds little:
 trained models already satisfy the tested constraints (monotonicity is violated on fewer than 0.5\% of pixel
 pairs), and enforcing them removes violations that are not where the errors are; on new floods only the
 strongest monotonicity loss helps, by about as much as a 20-m mask. A HAND mask helps only
 where a model predicts water on high ground, as SAR-only models do on new floods but not within
 Sen1Floods11; it cannot help below its threshold, where much of the input's flood gain lies (Table~S8).
-Here the prior helps most as an input, which carries information the SAR does not.
+Here the prior helps most as an input, which carries information the SAR does not. Because that
+information is positional, terrain and radar must be co-registered, but Sentinel-1 GRD geolocation (about
+7\,m~\cite{s1iwgrd}) and HAND's 30-m cells are far below the 500-m shift that removes the event-level gain.
 
 \subsection{When the advantage shrinks or fails}
 \emph{Many training events.} A model that has seen few floods may not have learned which backscatter
@@ -52,10 +51,6 @@ in advance; a fix would need to know when the DEM's drainage network is wrong. T
 descriptive: land-cover classes are tied to geography and flood type, so they show where the gain occurs,
 not why, and the absolute IoU in built-up areas stays low even with HAND.
 
-\emph{Registration.} Because the gain depends on HAND's position, terrain and radar must be co-registered.
-Sentinel-1 IW GRD products are specified to about 7\,m absolute location accuracy~\cite{s1iwgrd}, and HAND
-cells are 30\,m; both are far below the 500-m shift that removes the event-level gain, and a 100-m shift
-costs little. Resampling HAND onto each SAR tile's own grid, as here, avoids larger errors.
 
 \subsection{Limitations}
 Besides the caveats stated with each result (one TerraMind configuration; a fixed step budget; 3--5 seeds),
