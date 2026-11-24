@@ -31,15 +31,16 @@ def main() -> None:
     p.add_argument("--runs", type=Path, required=True)
     p.add_argument("--boot", type=int, default=4000)
     p.add_argument("--out", type=Path)
+    p.add_argument("--seeds", nargs="+", help="seed dirs to use (default: all); the registered tables use seed0 seed1 seed2")
     args = p.parse_args()
     rng = np.random.default_rng(0)
     rows = []
     for name, label in NAMES.items():
-        base = load(args.runs, name)
+        base = load(args.runs, name, args.seeds)
         base = base[base.variant.isin(["sar_only", "sar_hand", "sar_hand_swap"])]
         frames = [base]
         for k in PERTURB:
-            d = load(args.runs, f"{name}_h{k}")
+            d = load(args.runs, f"{name}_h{k}", args.seeds)
             d = d[d.variant == "sar_hand"].assign(variant=f"sar_hand@{k}")
             frames.append(d)
         df = pd.concat(frames)

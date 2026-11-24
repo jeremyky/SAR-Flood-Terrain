@@ -43,9 +43,12 @@ def stats(args: argparse.Namespace) -> None:
     print(f"{len(df)} chips; flat (p90 < {args.threshold} m): {(df.hand_p90 < args.threshold).mean():.3f}")
 
 
-def load(runs: Path, name: str) -> pd.DataFrame:
+def load(runs: Path, name: str, seeds: list[str] | None = None) -> pd.DataFrame:
+    """Per-chip confusion counts of every run under runs/<variant>/seed*/external_<name>; seeds: keep only these."""
     frames = []
     for csv in sorted(runs.glob(f"*/seed*/external_{name}/chips.csv")):
+        if seeds is not None and csv.parent.parent.name not in seeds:
+            continue
         df = pd.read_csv(csv)
         if "cm" in df:  # external eval: one row per chip
             df[["tp", "fp", "fn", "tn"]] = np.array([json.loads(c) for c in df.cm])

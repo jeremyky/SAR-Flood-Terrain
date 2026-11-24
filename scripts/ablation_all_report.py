@@ -30,11 +30,12 @@ def main() -> None:
     p.add_argument("--runs", type=Path, required=True)
     p.add_argument("--boot", type=int, default=4000)
     p.add_argument("--out", type=Path)
+    p.add_argument("--seeds", nargs="+", help="seed dirs to use (default: all); the registered tables use seed0 seed1 seed2")
     args = p.parse_args()
     rng = np.random.default_rng(0)
     rows = []
     for name, label in NAMES.items():
-        df = load(args.runs, name)
+        df = load(args.runs, name, args.seeds)
         df = df[df.metric.isin(["label", "flood_diff"])]
         for x, y in PAIRS:
             if {x, y} <= set(df.variant):

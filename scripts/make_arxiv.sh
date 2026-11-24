@@ -17,7 +17,11 @@ done
 rm -f "$SRC"/main.bbl "$SRC"/main.aux "$SRC"/main.blg "$SRC"/main.log "$SRC"/main.out
 
 # supplement body (between \sloppy and \end{document}), appended after the references as one document
-sed -n '/^\\sloppy$/,/^\\end{document}$/p' "$SRC"/supplement.tex | sed '1d;$d' \
+# (the supplement's own bibliography lines are dropped: every key it cites is also cited in the paper)
+for k in $(grep -o '\\cite{[^}]*}' "$SRC"/supplement.tex | sed 's/.*{\(.*\)}/\1/' | tr ',' '\n' | sort -u); do
+  grep -q "bibitem{$k}" "$OUT"/main.bbl || { echo "supplement cites $k, which the paper does not"; exit 1; }
+done
+sed -n '/^\\sloppy$/,/^\\end{document}$/p' "$SRC"/supplement.tex | sed '1d;$d' | grep -v '^\\bibliography' \
   | sed 's/^\\section\*{/\\subsection*{/' > "$OUT"/sup_body.tex
 python3 - "$OUT/main.tex" <<'PY'
 import sys

@@ -233,3 +233,34 @@ train, and by train and validation) next to the fixed-step gains; descriptive, n
 Seeds 3-4 for the U-Net and ResNet-34, SAR only and SAR + HAND, trained on all 11 Sen1Floods11 events and scored on
 GEOID test (flooded only, all water) and under the protocol. Table III and Fig. 1 then report seeds 0-4 whatever they
 show. Tables registered with 3 seeds (#4-#8) stay at seeds 0-2.
+
+## Outcomes of 9–15 (from 2026-11-23)
+
+Execution notes, decided without seeing any outcome: GPU-queue waits were long, so the official-split and
+all-event seeds 3-4, the loss variants and the mask evaluations ran on A100 MIG slices (1g.24gb, 2 CPUs)
+instead of full GPUs, with identical code and configs (`SBATCH_EXTRA` in `scripts/sweep_revision.sh`). The
+report scripts glob every seed, so `scripts/ablation_all_report.py` and `scripts/mechanism_report.py` gained
+`--seeds` to keep the tables registered with 3 seeds (#4-#8) at seeds 0-2. In Fig. 1b the + HAND row uses
+seeds 0-4 (#15) and the other rows seeds 0-2 (Tables IV and VI). `slurm/paper_reports.sbatch` now also runs
+the confirmation test, relief gate and dropout reports, so one call with `TRAIN=.../train_valid.txt` gives
+every sensitivity result of #11.
+
+**9. Not supported.** On the 90 official test tiles (10 events, 5 seeds per setting), event-mean HAND gain
+with the event in training +0.001 [−0.021, +0.019], with it held out +0.017 [−0.004, +0.043]; held out minus
+in training +0.016 [−0.009, +0.045] (primary). Pooled over the 90 tiles: +0.008 vs. +0.024, difference +0.016
+[−0.013, +0.046]. The held-out gain is larger on 8 of 10 events; Paraguay contributes most. As fixed in
+advance, the title, abstract and introduction no longer say that same-event splits hide the gain; they
+report the contrast. With seeds 3-4 the official-split numbers also change: test +0.008 ± 0.007 (was
++0.007 ± 0.008 with 3 seeds), Bolivia +0.105 ± 0.074 (was +0.128 ± 0.072; per seed +0.160, +0.046, +0.179,
++0.133, +0.008). Paper Section V-A, Fig. 1a, Table S10; `reports/matched_split.csv`.
+
+**11 (descriptive part).** 41 of the 80 test activations have AoIs in train and 15 in validation; only
+EMSR586 is in validation but not in train, so unseen by train and validation leaves 37 flood / 38 water
+events. No test tile has exactly the footprint of any train or validation tile (0 of 2,635). Paper Section
+III; `reports/split_overlap_audit.txt`.
+
+**13.** No event is flagged as a cut-off at 5, 10, 15 or 20 m in either dataset. Of the 72 flood events with at
+least 1% of their area above 15 m HAND, 56 have labelled flood water there. Median share of labelled water above
+15 m: 0.15% (GEOID flood), 0.09% (GEOID all water), 0.01% (Sen1Floods11 hand labels); 99th percentile of
+labelled-water HAND, median over events: 6.5 m, 6.0 m, 5.0 m. Paper Section VI-D, Table S15;
+`reports/label_hand_check.txt`.

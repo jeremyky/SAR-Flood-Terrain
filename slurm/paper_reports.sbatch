@@ -50,5 +50,18 @@ lc() { python scripts/learning_curve_report.py --runs $S/runs "$@"; }
          --out $OUT/proto_${runs//\//_}_$split.csv
     done
   done
+  for name in geoid_test_flood geoid_test; do
+    echo; echo "## §5.4 pre-registered confirmation test (draws 3-5), unseen, $name"
+    python scripts/confirm_gain_vs_events.py --runs $S/runs --name $name --unseen-only $TRAIN
+  done
+  for runs in geoid_lc/e20 geoid; do
+    for name in geoid_test_flood geoid_test geoid_proto_test; do
+      echo; echo "## §5.7 relief gate (Table S6), runs/$runs, $name"
+      python scripts/hand_gate.py report --runs $S/runs/$runs --stats $S/reports/hand_stats_geoid_test.csv --name $name \
+         --train-list $TRAIN --out $OUT/gate_${runs//\//_}_$name.csv
+    done
+    echo; echo "## §5.7 HAND dropout (Table S7), runs/$runs"
+    python scripts/dropout_report.py --runs $S/runs/$runs --train-list $TRAIN --out $OUT/dropout_${runs//\//_}.csv
+  done
 } > $OUT/report.txt 2>&1
 echo "wrote $OUT"
